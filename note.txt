@@ -1,0 +1,5 @@
+> l'architettura behavioral del mux generico tiene conto del delay, quella strutturale no. Se si volesse tenere in conto anche lì (e probabilmente si deve, anche se lei non ne fa menzione) occorre riscrivere le porte logiche in versione custom;
+
+> non ho capito se bisogna scrivere il testbench generic di fd_generic. Secondo me sì ma per evitare lavoro inutile, ci penso domattina quando sarò più sveglio;
+
+> se vi va, se lo trovate consistente, proviamo a rispettare lo stile sintattico: tutto minuscolo tranne i nomi delle librerie, dei packages, delle configurazioni e, se serve, i nomi di entity e architecture; 
