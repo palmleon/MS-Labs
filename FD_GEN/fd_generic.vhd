@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use WORK.constants.all;
 
-entity FD is
+entity FD_GENERIC is
   generic
     (N : integer := numbit
       );
@@ -16,7 +16,7 @@ end entity;
 --**********************
 -- synch reset arch
 --**********************
-architecture SYNCARCH of FD is          
+architecture SYNCARCH of FD_GENERIC is          
 
 begin
   PSYNCH : process(CK, RESET)
@@ -35,7 +35,7 @@ end SYNCARCH;
 --**********************
 -- asynch reset arch
 --**********************
-architecture ASYNCARCH of FD is         
+architecture ASYNCARCH of FD_GENERIC is         
 
 begin
   
@@ -51,13 +51,13 @@ begin
 end ASYNCARCH;
 
 
-configuration CFG_FD_SYNCARCH of FD is
+configuration CFG_FD_SYNCARCH of FD_GENERIC is
   for SYNCARCH
   end for;
 end CFG_FD_SYNCARCH;
 
 
-configuration CFG_FD_ASYNCARCH of FD is
+configuration CFG_FD_ASYNCARCH of FD_GENERIC is
   for ASYNCARCH
   end for;
 end CFG_FD_ASYNCARCH;

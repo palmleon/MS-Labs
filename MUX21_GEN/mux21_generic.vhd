@@ -40,11 +40,14 @@ end architecture;
 
 architecture structural of MUX21_GENERIC is
     -- signals
-    signal s_vector : std_logic_vector ( N-1 downto 0 ); 
+    signal s1, s2, s3, s_vector : std_logic_vector ( N-1 downto 0 ); 
   
     begin
-        s_vector <= ( others => SEL ); 
-        Y <= (NOT (s_vector) AND A) OR (s_vector AND B);   
+        s_vector <= ( others => SEL );
+		s1 <= NOT s_vector AFTER IVDELAY;
+		s2 <= s1 NAND A AFTER NDDELAY;
+		s3 <= s_vector NAND B AFTER NDDELAY; 
+        Y <= s2 NAND s3 AFTER NDDELAY;   
 
     -- components instantiation
 end architecture;
