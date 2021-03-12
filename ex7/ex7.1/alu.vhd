@@ -42,7 +42,7 @@ begin
         OUTALU <= std_logic_vector(unsigned(DATA1) srl to_integer(unsigned(DATA2)));
 
       when FUNCRL =>  -- Rotate Left  
-        OUTALU <= DATA1(N - 2 downto 0) & DATA1(N - 1); -- concatenating first N-2 bits to msb
+        OUTALU <= DATA1(N - 2 downto 0) & DATA1(N - 1); -- concatenating least N-1 significant bits to msb
          
       when FUNCRR =>  -- Rotate Right
         OUTALU <= DATA1(0) & DATA1( N - 1 downto 1); -- concatenating lsb to [N-1:1] bits

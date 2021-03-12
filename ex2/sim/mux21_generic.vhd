@@ -2,7 +2,6 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use WORK.constants.all;
 
-
 entity MUX21_GENERIC is
     generic(
         N: integer := numbit;
@@ -39,17 +38,36 @@ end architecture;
 --****************************
 
 architecture structural of MUX21_GENERIC is
-    -- signals
-    signal s1, s2, s3, s_vector : std_logic_vector ( N-1 downto 0 ); 
-  
-    begin
-        s_vector <= ( others => SEL );
-		s1 <= NOT s_vector AFTER IVDELAY;
-		s2 <= s1 NAND A AFTER NDDELAY;
-		s3 <= s_vector NAND B AFTER NDDELAY; 
-        Y <= s2 NAND s3 AFTER NDDELAY;   
 
-    -- components instantiation
+	component NAND2 is
+		port(a, b: 	in	std_logic;
+			 f:		out	std_logic);
+	end component NAND2;
+
+	component INV is
+		port(a:		in	std_logic;
+			 f:		out std_logic);
+	end component INV;
+
+    -- signals
+    signal s1, s2:	std_logic_vector ( N-1 downto 0 ); 
+  	signal sel_not: 	std_logic;
+
+    begin
+		-- components instantiation
+		inv_sel: INV port map (sel, sel_not);
+		
+		NANDgen: for i in 0 to N-1 generate
+			s1_i: NAND2 port map (a(i), sel_not, s1(i));
+			s2_i: NAND2 port map (b(i), sel, s2(i));
+			y_i:  NAND2 port map (s1(i), s2(i), y(i)); 
+		end generate NANDgen;
+		
+        --s_vector <= ( others => SEL );
+		--s1 <= NOT s_vector AFTER IVDELAY;
+		--s2 <= s1 NAND A AFTER NDDELAY;
+		--s3 <= s_vector NAND B AFTER NDDELAY; 
+        --Y <= s2 NAND s3 AFTER NDDELAY;  
 end architecture;
 
 
@@ -66,6 +84,14 @@ end configuration CFG_MUX21_GEN_BEHAVIORAL;
 configuration CFG_MUX21_GEN_STRUCTURAL of MUX21_GENERIC is
     
     for structural
+		for inv_sel: INV
+			use configuration WORK.CFG_INV_BEHAVIORAL;
+		end for;
+		for NANDgen
+			for all: NAND2
+				use configuration WORK.CFG_NAND2_BEHAVIORAL;
+			end for;
+		end for;
     end for;
   
 end configuration CFG_MUX21_GEN_STRUCTURAL;
