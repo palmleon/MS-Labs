@@ -17,18 +17,17 @@ end entity;
 -- synch reset arch
 --**********************
 architecture SYNCARCH of FD_GENERIC is          
-
+	component FD is
+		Port (	D:		In	std_logic;
+				CK:		In	std_logic;
+				RESET:	In	std_logic;
+				Q:		Out	std_logic);
+	end component FD;
 begin
-  PSYNCH : process(CK, RESET)
-  begin
-    if CK'event and CK = '1' then  -- positive edge triggered:
-      if RESET = '1' then  -- active high reset 
-        Q <= (others => '0');
-      else
-        Q <= D;                         
-      end if;
-    end if;
-  end process;
+
+	FFgen: for i in 0 to N-1 generate
+		FF: FD port map (D(i), CK, RESET, Q(i));
+	end generate FFgen;
 
 end SYNCARCH;
 
@@ -36,30 +35,40 @@ end SYNCARCH;
 -- asynch reset arch
 --**********************
 architecture ASYNCARCH of FD_GENERIC is         
-
+	component FD is
+		port (	D:		In	std_logic;
+				CK:		In	std_logic;
+				RESET:	In	std_logic;
+				Q:		Out	std_logic);
+	end component FD;
 begin
   
-  PASYNCH : process(CK, RESET)
-  begin
-    if RESET = '1' then
-      Q <= (others => '0');
-    elsif CK'event and CK = '1' then  -- positive edge triggered:
-      Q <= D;
-    end if;
-  end process;
+	FFgen: for i in 0 to N-1 generate
+		FF: FD port map (D(i), CK, RESET, Q(i));
+	end generate FFgen;
 
 end ASYNCARCH;
 
 
 configuration CFG_FD_SYNCARCH of FD_GENERIC is
-  for SYNCARCH
-  end for;
+  	for SYNCARCH
+		for FFgen
+			for all: FD
+				use configuration WORK.CFG_FD_SYNCH;
+			end for;
+		end for;
+  	end for;
 end CFG_FD_SYNCARCH;
 
 
 configuration CFG_FD_ASYNCARCH of FD_GENERIC is
-  for ASYNCARCH
-  end for;
+  	for ASYNCARCH
+		for FFgen
+			for all: FD
+				use configuration WORK.CFG_FD_ASYNCH;
+			end for;
+		end for;
+  	end for;
 end CFG_FD_ASYNCARCH;
 
 
