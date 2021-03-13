@@ -8,13 +8,24 @@
 ## Index
 
 - [Index](#index)
+
 - [Team](#team)
+
+- [DLX](dlx-project)
+
 - [Lab1](gr38_lab01)
+
 - [Lab2](gr38_lab02)
+
 - [Lab3](gr38_lab03)
+
 - [Lab4](gr38_lab04)
+
 - [Lab5](gr38_lab05)
+
 - [Lab6](gr38_lab06)
+
+  
 
 ## Team
 
@@ -24,7 +35,12 @@
 
 ## Lab 1
 
-// TODO: to be written
+###  VHDL and Synthesis
+
+- generic Multiplexer
+- generic Ripple Carry Adder
+- Accumulator
+- basic ALU
 
 ## Lab 2
 
