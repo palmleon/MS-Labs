@@ -4,8 +4,8 @@ use WORK.constants.all;
 
 entity MUX21_GENERIC is
     generic(
-        N: integer := numbit;
-        DELAY_MUX: time:=TP_MUX
+--        DELAY_MUX: time:=TP_MUX;
+	N: integer := numbit
     );
 
     port (

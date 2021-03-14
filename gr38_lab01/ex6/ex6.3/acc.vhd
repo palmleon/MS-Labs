@@ -71,9 +71,9 @@ architecture structural of ACC is
     component RCA is
         generic 
         (
-            N     : integer := N;
-            DRCAS : time    := DRCAS;
-            DRCAC : time    := DRCAC
+--            DRCAS : time    := DRCAS;
+--            DRCAC : time    := DRCAC;
+	    N	  : integer := N
         );
         port 
         (
@@ -89,8 +89,8 @@ architecture structural of ACC is
     component MUX21_GENERIC is
         generic
         (
-            N: integer := N;
-            DELAY_MUX: time := TP_MUX
+--            DELAY_MUX: time := TP_MUX;
+	    N: integer := N
         );
         port 
         (

@@ -5,8 +5,8 @@ use WORK.constants.all;
 
 entity RCA is
     generic (
-        DRCAS : time    := 0 ns;
-        DRCAC : time    := 0 ns;
+--        DRCAS : time    := 0 ns;
+--        DRCAC : time    := 0 ns;
         N     : integer := NumBit
     );
 
@@ -40,10 +40,10 @@ architecture structural of RCA is
 
     -- importing components
     component FA
-        generic (
-            DFAS : time := 0 ns;
-            DFAC : time := 0 ns
-        );
+--        generic (
+--            DFAS : time := 0 ns;
+--            DFAC : time := 0 ns
+--        );
 
         port (
             A  : in  std_logic;
@@ -63,7 +63,7 @@ begin
 
     ADDER1: for i in 0 to N - 1 generate
         FAi : FA 
-           generic map(DRCAS, DRCAC)
+  --         generic map(DRCAS, DRCAC)
            port map (A(i), B(i), tmp(i), S(i), tmp(i + 1));
     end generate;
 end architecture;

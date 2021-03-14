@@ -1,0 +1,35 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : ACC_N64
+Version: F-2011.09-SP3
+Date   : Sun Mar 14 18:17:55 2021
+****************************************
+
+Operating Conditions: typical   Library: NangateOpenCellLibrary
+Wire Load Model Mode: top
+
+  Startpoint: feed_back_reg[63]
+              (rising edge-triggered flip-flop)
+  Endpoint: Y[63] (output port)
+  Path Group: (none)
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  ACC_N64            5K_hvratio_1_1        NangateOpenCellLibrary
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  feed_back_reg[63]/CK (DFFR_X1)           0.00       0.00 r
+  feed_back_reg[63]/Q (DFFR_X1)            0.10       0.10 r
+  Y[63] (out)                              0.00       0.11 r
+  data arrival time                                   0.11
+  -----------------------------------------------------------
+  (Path is unconstrained)
+
+
+1
