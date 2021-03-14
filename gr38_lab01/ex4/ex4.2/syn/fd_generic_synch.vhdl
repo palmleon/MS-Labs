@@ -3,18 +3,18 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-package CONV_PACK_FD_GENERIC_N16_1 is
+package CONV_PACK_FD_GENERIC_N16 is
 
 -- define attributes
 attribute ENUM_ENCODING : STRING;
 
-end CONV_PACK_FD_GENERIC_N16_1;
+end CONV_PACK_FD_GENERIC_N16;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_15 is
 
@@ -22,30 +22,35 @@ entity FD_15 is
 
 end FD_15;
 
-architecture SYN_ASYNCHARCH of FD_15 is
+architecture SYN_SYNCHARCH of FD_15 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1000 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1000 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1000);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1000);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_14 is
 
@@ -53,30 +58,35 @@ entity FD_14 is
 
 end FD_14;
 
-architecture SYN_ASYNCHARCH of FD_14 is
+architecture SYN_SYNCHARCH of FD_14 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1001 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1001 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1001);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1001);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_13 is
 
@@ -84,30 +94,35 @@ entity FD_13 is
 
 end FD_13;
 
-architecture SYN_ASYNCHARCH of FD_13 is
+architecture SYN_SYNCHARCH of FD_13 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1002 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1002 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1002);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1002);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_12 is
 
@@ -115,30 +130,35 @@ entity FD_12 is
 
 end FD_12;
 
-architecture SYN_ASYNCHARCH of FD_12 is
+architecture SYN_SYNCHARCH of FD_12 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1003 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1003 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1003);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1003);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_11 is
 
@@ -146,30 +166,35 @@ entity FD_11 is
 
 end FD_11;
 
-architecture SYN_ASYNCHARCH of FD_11 is
+architecture SYN_SYNCHARCH of FD_11 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1004 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1004 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1004);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1004);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_10 is
 
@@ -177,30 +202,35 @@ entity FD_10 is
 
 end FD_10;
 
-architecture SYN_ASYNCHARCH of FD_10 is
+architecture SYN_SYNCHARCH of FD_10 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1005 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1005 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1005);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1005);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_9 is
 
@@ -208,30 +238,35 @@ entity FD_9 is
 
 end FD_9;
 
-architecture SYN_ASYNCHARCH of FD_9 is
+architecture SYN_SYNCHARCH of FD_9 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1006 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1006 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1006);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1006);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_8 is
 
@@ -239,30 +274,35 @@ entity FD_8 is
 
 end FD_8;
 
-architecture SYN_ASYNCHARCH of FD_8 is
+architecture SYN_SYNCHARCH of FD_8 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1007 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1007 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1007);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1007);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_7 is
 
@@ -270,30 +310,35 @@ entity FD_7 is
 
 end FD_7;
 
-architecture SYN_ASYNCHARCH of FD_7 is
+architecture SYN_SYNCHARCH of FD_7 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1008 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1008 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1008);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1008);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_6 is
 
@@ -301,30 +346,35 @@ entity FD_6 is
 
 end FD_6;
 
-architecture SYN_ASYNCHARCH of FD_6 is
+architecture SYN_SYNCHARCH of FD_6 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1009 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1009 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1009);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1009);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_5 is
 
@@ -332,30 +382,35 @@ entity FD_5 is
 
 end FD_5;
 
-architecture SYN_ASYNCHARCH of FD_5 is
+architecture SYN_SYNCHARCH of FD_5 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1010 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1010 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1010);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1010);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_4 is
 
@@ -363,30 +418,35 @@ entity FD_4 is
 
 end FD_4;
 
-architecture SYN_ASYNCHARCH of FD_4 is
+architecture SYN_SYNCHARCH of FD_4 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1011 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1011 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1011);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1011);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_3 is
 
@@ -394,30 +454,35 @@ entity FD_3 is
 
 end FD_3;
 
-architecture SYN_ASYNCHARCH of FD_3 is
+architecture SYN_SYNCHARCH of FD_3 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1012 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1012 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1012);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1012);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_2 is
 
@@ -425,30 +490,35 @@ entity FD_2 is
 
 end FD_2;
 
-architecture SYN_ASYNCHARCH of FD_2 is
+architecture SYN_SYNCHARCH of FD_2 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1013 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1013 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1013);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1013);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_1 is
 
@@ -456,30 +526,35 @@ entity FD_1 is
 
 end FD_1;
 
-architecture SYN_ASYNCHARCH of FD_1 is
+architecture SYN_SYNCHARCH of FD_1 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n2, n_1014 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1014 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n2, Q => Q, QN => n_1014);
-   U3 : INV_X1 port map( A => RESET, ZN => n2);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1014);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
 entity FD_0 is
 
@@ -487,39 +562,44 @@ entity FD_0 is
 
 end FD_0;
 
-architecture SYN_ASYNCHARCH of FD_0 is
+architecture SYN_SYNCHARCH of FD_0 is
 
    component INV_X1
       port( A : in std_logic;  ZN : out std_logic);
    end component;
    
-   component DFFR_X1
-      port( D, CK, RN : in std_logic;  Q, QN : out std_logic);
+   component NOR2_X1
+      port( A1, A2 : in std_logic;  ZN : out std_logic);
    end component;
    
-   signal n1, n_1015 : std_logic;
+   component DFF_X1
+      port( D, CK : in std_logic;  Q, QN : out std_logic);
+   end component;
+   
+   signal N3, n1, n_1015 : std_logic;
 
 begin
    
-   Q_reg : DFFR_X1 port map( D => D, CK => CK, RN => n1, Q => Q, QN => n_1015);
-   U3 : INV_X1 port map( A => RESET, ZN => n1);
+   Q_reg : DFF_X1 port map( D => N3, CK => CK, Q => Q, QN => n_1015);
+   U3 : NOR2_X1 port map( A1 => RESET, A2 => n1, ZN => N3);
+   U4 : INV_X1 port map( A => D, ZN => n1);
 
-end SYN_ASYNCHARCH;
+end SYN_SYNCHARCH;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16_1.all;
+use work.CONV_PACK_FD_GENERIC_N16.all;
 
-entity FD_GENERIC_N16_1 is
+entity FD_GENERIC_N16 is
 
    port( D : in std_logic_vector (15 downto 0);  CK, RESET : in std_logic;  Q :
          out std_logic_vector (15 downto 0));
 
-end FD_GENERIC_N16_1;
+end FD_GENERIC_N16;
 
-architecture SYN_SYNCARCH of FD_GENERIC_N16_1 is
+architecture SYN_SYNCARCH of FD_GENERIC_N16 is
 
    component FD_1
       port( D, CK, RESET : in std_logic;  Q : out std_logic);

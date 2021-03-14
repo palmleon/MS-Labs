@@ -3,18 +3,18 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-package CONV_PACK_FD_GENERIC_N16 is
+package CONV_PACK_FD_GENERIC_N16_1 is
 
 -- define attributes
 attribute ENUM_ENCODING : STRING;
 
-end CONV_PACK_FD_GENERIC_N16;
+end CONV_PACK_FD_GENERIC_N16_1;
 
 library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_15 is
 
@@ -45,7 +45,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_14 is
 
@@ -76,7 +76,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_13 is
 
@@ -107,7 +107,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_12 is
 
@@ -138,7 +138,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_11 is
 
@@ -169,7 +169,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_10 is
 
@@ -200,7 +200,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_9 is
 
@@ -231,7 +231,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_8 is
 
@@ -262,7 +262,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_7 is
 
@@ -293,7 +293,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_6 is
 
@@ -324,7 +324,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_5 is
 
@@ -355,7 +355,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_4 is
 
@@ -386,7 +386,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_3 is
 
@@ -417,7 +417,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_2 is
 
@@ -448,7 +448,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_1 is
 
@@ -479,7 +479,7 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
 entity FD_0 is
 
@@ -510,16 +510,16 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 
-use work.CONV_PACK_FD_GENERIC_N16.all;
+use work.CONV_PACK_FD_GENERIC_N16_1.all;
 
-entity FD_GENERIC_N16 is
+entity FD_GENERIC_N16_1 is
 
    port( D : in std_logic_vector (15 downto 0);  CK, RESET : in std_logic;  Q :
          out std_logic_vector (15 downto 0));
 
-end FD_GENERIC_N16;
+end FD_GENERIC_N16_1;
 
-architecture SYN_ASYNCARCH of FD_GENERIC_N16 is
+architecture SYN_ASYNCARCH of FD_GENERIC_N16_1 is
 
    component FD_1
       port( D, CK, RESET : in std_logic;  Q : out std_logic);

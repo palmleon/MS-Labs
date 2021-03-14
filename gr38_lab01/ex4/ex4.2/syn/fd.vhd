@@ -8,6 +8,21 @@ entity FD is
 			Q:		Out	std_logic);
 end FD;
 
+architecture ASYNCHARCH of FD is -- flip flop D with asyncronous reset
+
+begin
+	
+	PASYNCH: process(CK,RESET)
+	begin
+	  if RESET='1' then
+	    Q <= '0';
+	  elsif CK'event and CK='1' then -- positive edge triggered:
+	    Q <= D; 
+	  end if;
+	end process;
+
+end ASYNCHARCH;
+
 
 architecture SYNCHARCH of FD is -- flip flop D with syncronous reset
 
@@ -24,22 +39,6 @@ begin
 	end process;
 
 end SYNCHARCH;
-
-architecture ASYNCHARCH of FD is -- flip flop D with asyncronous reset
-
-begin
-	
-	PASYNCH: process(CK,RESET)
-	begin
-	  if RESET='1' then
-	    Q <= '0';
-	  elsif CK'event and CK='1' then -- positive edge triggered:
-	    Q <= D; 
-	  end if;
-	end process;
-
-end ASYNCHARCH;
-
 
 configuration CFG_FD_ASYNCH of FD is
 	for ASYNCHARCH

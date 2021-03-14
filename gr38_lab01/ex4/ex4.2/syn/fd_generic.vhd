@@ -14,24 +14,6 @@ entity FD_GENERIC is
 end entity;
 
 --**********************
--- synch reset arch
---**********************
-architecture SYNCARCH of FD_GENERIC is          
-	component FD is
-		Port (	D:		In	std_logic;
-				CK:		In	std_logic;
-				RESET:	In	std_logic;
-				Q:		Out	std_logic);
-	end component FD;
-begin
-
-	FFgen: for i in 0 to N-1 generate
-		FF: FD port map (D(i), CK, RESET, Q(i));
-	end generate FFgen;
-
-end SYNCARCH;
-
---**********************
 -- asynch reset arch
 --**********************
 architecture ASYNCARCH of FD_GENERIC is         
@@ -49,6 +31,23 @@ begin
 
 end ASYNCARCH;
 
+--**********************
+-- synch reset arch
+--**********************
+architecture SYNCARCH of FD_GENERIC is          
+	component FD is
+		Port (	D:		In	std_logic;
+				CK:		In	std_logic;
+				RESET:	In	std_logic;
+				Q:		Out	std_logic);
+	end component FD;
+begin
+
+	FFgen: for i in 0 to N-1 generate
+		FF: FD port map (D(i), CK, RESET, Q(i));
+	end generate FFgen;
+
+end SYNCARCH;
 
 configuration CFG_FD_SYNCARCH of FD_GENERIC is
   	for SYNCARCH
