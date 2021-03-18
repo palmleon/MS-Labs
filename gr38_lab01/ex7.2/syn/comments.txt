@@ -1,0 +1,4 @@
+The timing report shows a small delay as critical paths only cross few logic gates. The synthesis shows that the ALU is made up of many parallel units, but the actual computation performed at the functional unit level is simple and only requires few gates.
+As regards the area report, the number of sequential cells corresponds to the parameter N (4). 
+// TODO: add here what is missing
+In addition, the whole ALU synthesis is made up of combinatory modules but the register, which is the reason why the combinatory area is way bigger than the sequential one. 
