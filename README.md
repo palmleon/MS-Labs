@@ -7,15 +7,19 @@
 
 ## Index
 
-- [Index](#index)
-- [Team](#team)
-- [DLX](dlx-project)
-- [Lab1](gr38_lab01)
-- [Lab2](gr38_lab02)
-- [Lab3](gr38_lab03)
-- [Lab4](gr38_lab04)
-- [Lab5](gr38_lab05)
-- [Lab6](gr38_lab06)
+* [Index](#index)
+* [Team](#team)
+* [DLX](dlx-project)
+* [Lab1](#lab1)
+  - [requirements](gr38_lab01/lab1.pdf)
+  - [solution](gr38_lab01) 
+* [Lab2](#lab2)
+  - [requirements](gr38_lab02/lab2.pdf)
+  - [solution](gr38_lab02) 
+* [Lab3](#lab3)
+* [Lab4](#lab4)
+* [Lab5](#lab5)
+* [Lab6](#lab6)
 
 ## Team
 
@@ -23,8 +27,7 @@
 - <img alt="avatar" src="https://github.com/palmleon.png" width="20px" height="20px"> **Leonardo Palmucci** - [palmleon](https://github.com/palmleon) 
 - <img alt="avatar" src="https://github.com/Edward-Manca.png" width="20px" height="20px"> **Edward Manca** - [Edward-Manca](https://github.com/Edward-Manca)
 
-## Lab 1
-
+## Lab1
 ###  VHDL and Synthesis
 
 - generic Multiplexer
@@ -32,23 +35,22 @@
 - Accumulator
 - basic ALU
 
-## Lab 2
+## Lab2
 
 // TODO: to be written
 
-## Lab 3
+## Lab3
 
 // TODO: to be written
 
-## Lab 4
+## Lab4
 
 // TODO: to be written
 
-## Lab 5
+## Lab5
 
 // TODO: to be written
 
-## Lab 6
+## Lab6
 
 // TODO: to be written
-
