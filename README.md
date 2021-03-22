@@ -36,8 +36,12 @@
 - basic ALU
 
 ## Lab2
+Hierarchical Arithmetical Blocks
+- Pentium 4 Adder
+  - Sparse Tree Carry Generator
+  - Carry Select-like Sum Generator
+- Parallel Multiplier based on Booth's algorithm
 
-// TODO: to be written
 
 ## Lab3
 
