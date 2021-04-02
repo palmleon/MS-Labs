@@ -9,7 +9,7 @@ entity GeneralGenerate is
 	);
     port (
 		Pik, Gik, Gmj:	IN	std_logic;	-- m = k-1 by definition
-		Gij:			OUT	std_logic;        
+		Gij:			OUT	std_logic       
 	);
 end GeneralGenerate;
 
@@ -26,7 +26,7 @@ end architecture;
   -- configuration 
   --*************************
 
-configuration CFG_GeneralGenerate_BEHAVIORAL of RCA is
+configuration CFG_GeneralGenerate_BEHAVIORAL of GeneralGenerate is
 	for BEHAVIORAL
     end for;
-end CFG_RCA_BEHAVIORAL;
+end CFG_GeneralGenerate_BEHAVIORAL ;

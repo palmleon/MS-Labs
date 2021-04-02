@@ -10,7 +10,7 @@ entity GeneralPropagate is
 	);
     port (
 		Pik, Gik, Pmj, Gmj:	IN	std_logic;	-- m = k-1 by definition
-		Pij, Gij:			OUT	std_logic;        
+		Pij, Gij:			OUT	std_logic       
 	);
 end GeneralPropagate;
 
@@ -28,7 +28,7 @@ end architecture;
   -- configuration 
   --*************************
 
-configuration CFG_GeneralPropagate_BEHAVIORAL of RCA is
+configuration CFG_GeneralPropagate_BEHAVIORAL of GeneralPropagate is
 	for BEHAVIORAL
     end for;
-end CFG_RCA_BEHAVIORAL;
+end CFG_GeneralPropagate_BEHAVIORAL;
