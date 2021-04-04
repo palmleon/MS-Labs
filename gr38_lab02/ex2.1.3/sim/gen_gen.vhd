@@ -3,24 +3,22 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.ALL;
 use WORK.constants.all;
 
-entity General_Propagate is
+entity Gen_Gen is
     generic (
-        PDELAY : time := IVDELAY + NDDELAY;
 		GDELAY : time := 2*IVDELAY + NRDELAY + NDDELAY
 	);
     port (
-		Pik, Gik, Pmj, Gmj:	IN	std_logic;	-- m = k-1 by definition
-		Pij, Gij:			OUT	std_logic       
+		Pik, Gik, Gmj:	IN	std_logic;	-- m = k-1 by definition
+		Gij:			OUT	std_logic       
 	);
-end General_Propagate;
+end Gen_Gen;
 
   --*************************
   -- behavioral arch 
   --*************************
 
-architecture behavioral of General_Propagate is
+architecture behavioral of Gen_Gen is
 begin 
-	Pij <= Pik and Pmj after PDELAY;
 	Gij <= Gik or (Pik and Gmj) after GDELAY;	
 end architecture;
 
@@ -28,7 +26,7 @@ end architecture;
   -- configuration 
   --*************************
 
-configuration CFG_GeneralPropagate_BEHAVIORAL of General_Propagate is
+configuration CFG_GeneralGenerate_BEHAVIORAL of Gen_Gen is
 	for BEHAVIORAL
     end for;
-end CFG_GeneralPropagate_BEHAVIORAL;
+end CFG_GeneralGenerate_BEHAVIORAL;
