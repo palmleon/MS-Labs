@@ -1,15 +1,15 @@
-
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;               -- we need a conversion to unsigned 
+use ieee.numeric_std.all;
+use ieee.math_real.all;
 use WORK.constants.all;
 
 entity TB_SUM_GENERATOR is
 end entity;
 
 architecture TEST of TB_SUM_GENERATOR is
-  constant NBIT : integer := 4;
-  constant NBLOCKS : integer := 8;
+  constant NBIT           : integer := 31;
+  constant NBIT_PER_BLOCK : integer := 4;
 
   component LFSR16
     port (CLK, RESET, LD, EN : in  std_logic;
@@ -20,25 +20,25 @@ architecture TEST of TB_SUM_GENERATOR is
 
   component SUM_GENERATOR
     generic 
-    (
-        N     : integer := NUMBIT;   -- number of bit of single carry_sel_block
-        M     : integer := NBLOCKS  -- number of carry_sel blocks
-    );
+      (
+        NBIT            : integer := NBIT;           -- total number of bit
+        NBIT_PER_BLOCK  : integer := NBIT_PER_BLOCK  -- max number of bit in a single block
+      );
     port
-    (
-        A  : in  std_logic_vector((N*M)-1 downto 0);
-        B  : in  std_logic_vector((N*M)-1 downto 0);
-        Ci : in  std_logic_vector(M-1 downto 0);
-        S  : out std_logic_vector((N*M)-1 downto 0)
-    );
-    end component;
+      (
+        A  : in  std_logic_vector(NBIT-1 downto 0);
+        B  : in  std_logic_vector(NBIT-1 downto 0);
+        Ci : in  std_logic_vector(integer(ceil(real(NBIT)/real(NBIT_PER_BLOCK)))-1 downto 0);
+        S  : out std_logic_vector(NBIT-1 downto 0)
+      );
+  end component;
 
   constant Period              : time      := 1 ns;  -- Clock period (1 GHz)
   signal CLK                   : std_logic := '0';
   signal RESET, LD, EN, ZERO_D : std_logic;
   signal DIN, PRN              : std_logic_vector(15 downto 0);
 
-  signal A, B, S_str, S_beh : std_logic_vector(31 downto 0);
+  signal A, B, S_str, S_beh : std_logic_vector(30 downto 0);
   signal C : std_logic_vector (7 downto 0);
 
 begin
@@ -58,7 +58,7 @@ begin
     A(19 downto 16) <= PRN(7 downto 4);
     A(23 downto 20) <= PRN(8 downto 5);
     A(27 downto 24) <= PRN(9 downto 6);
-    A(31 downto 28) <= PRN(10 downto 7);
+    A(30 downto 28) <= PRN(10 downto 8);
 
     B(3 downto 0)   <= PRN(8 downto 5);
     B(7 downto 4)   <= PRN(9 downto 6);
@@ -67,7 +67,7 @@ begin
     B(19 downto 16) <= PRN(12 downto 9);
     B(23 downto 20) <= PRN(13 downto 10);
     B(27 downto 24) <= PRN(14 downto 11);
-    B(31 downto 28) <= PRN(15 downto 12);
+    B(30 downto 28) <= PRN(15 downto 13);
 
     --assign the carrie
     C(0) <= PRN(5);
