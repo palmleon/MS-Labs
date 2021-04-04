@@ -6,6 +6,9 @@ use WORK.constants.all;
 -- Booth's encoder         
 -- takes a 3 bit operand and encodes it
 -- for the Booth's table
+-- 
+-- Since this is a very specific one, no generics
+-- have been employed
 --------------------------------------
 
 entity encoder is
@@ -34,7 +37,7 @@ begin
             when "110" => enc <= "010"; -- -A
 
             when "111" => enc <= "000"; -- 0
-            when others => enc <= (others => 'Z');
+            when others => enc <= "000"; -- default 0
         end case;
     end process;
 end architecture;

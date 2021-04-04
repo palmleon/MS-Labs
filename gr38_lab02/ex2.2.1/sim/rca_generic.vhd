@@ -19,23 +19,10 @@ entity RCA is
     );
   end RCA;
 
-  --*************************
-  -- behavioral arch 
-  --*************************
-architecture behavioral of RCA is
-    signal S_N : std_logic_vector(N downto 0); 
 
-begin 
-   -- sum on N + 1 bits
-    S_N <= ('0' & A) + ('0' & B) + Ci after DRCAS;
-    Co <= S_N(N) after DRCAC; -- Co = msb
-    S <= S_N(N - 1 downto 0); -- actual sum
-
-end architecture;
-
--- ****************************
+------------------------------
 -- structural arch
--- ****************************
+------------------------------
 architecture structural of RCA is 
 
     -- importing components
@@ -69,17 +56,3 @@ begin
 end architecture;
 
 
-configuration CFG_RCA_STRUCTURAL of RCA is
-    for STRUCTURAL
-      for ADDER1
-        for all : FA
-          use configuration WORK.CFG_FA_BEHAVIORAL;
-        end for;
-      end for;
-    end for;
-  end CFG_RCA_STRUCTURAL;
-  
-  configuration CFG_RCA_BEHAVIORAL of RCA is
-    for BEHAVIORAL
-    end for;
-  end CFG_RCA_BEHAVIORAL;

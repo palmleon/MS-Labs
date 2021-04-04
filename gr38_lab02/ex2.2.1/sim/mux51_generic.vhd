@@ -12,6 +12,7 @@ entity MUX51_GENERIC is
         N: integer := numbit
     );
     port (
+	-- no need for a "0" signal
         posA: in std_logic_vector (N-1 downto 0);
         negA: in std_logic_vector (N-1 downto 0);
         pos2A: in std_logic_vector(N-1 downto 0);
@@ -30,14 +31,14 @@ architecture behavioral of MUX51_GENERIC is
             case SEL is
                 when "000"  => Y <= (others => '0');
                     
-                when "001"  => Y <= posA;
+                when "001"  => Y <= posA; -- A
                                
-                when "011"  => Y <= pos2A;
-                when "100"  => Y <= neg2A;
+                when "011"  => Y <= pos2A; -- 2A
+                when "100"  => Y <= neg2A; -- -2A
                                
-                when "010"  => Y <= negA;
+                when "010"  => Y <= negA; -- -A
                                
-                when others => Y <= (others => 'Z');
+                when others => Y <= (others => '0');
             end case;
         end process;
 
