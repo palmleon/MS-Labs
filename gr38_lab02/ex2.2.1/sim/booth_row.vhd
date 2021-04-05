@@ -46,11 +46,14 @@ architecture struct of booth_row is
         generic(
             N: integer := NumBit
         );
-        port (
-            A : in std_logic_vector( N - 1 downto 0);
-            m2A, p2A, p4A: buffer std_logic_vector( N - 1 downto 0); 
-            m4A  : out std_logic_vector (N - 1 downto 0)
-        );
+	port (
+        -- p = "+" (e.g. p2A stands for 2A )
+        -- m = "-" (e.g. m2A stands for -2A)
+        A : in std_logic_vector( N - 1 downto 0);
+        p2A, m2A, p4A: out std_logic_vector(N - 1 downto 0);
+        m4A: out std_logic_vector( N - 1 downto 0)       
+    );
+
     end component;
 
     component MUX51_GENERIC is

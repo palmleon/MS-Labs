@@ -67,7 +67,9 @@ architecture struct of BOOTHMUL is
     signal A_s : std_logic_vector(2*N-1 downto 0); -- double size because it needs to be resized (A*2^2)
 begin
     firstB <= B(1 downto 0) & '0'; -- B[1,0,-1], B[-1] = '0'
-    A_s <= std_logic_vector(resize(signed(A), A_s'length)); -- suggested on stack ovfl
+    
+    -- A  sign extension
+    A_s <= std_logic_vector(resize(signed(A), A_s'length));
 
     glob_gen: for i in 0 to N/2 - 1 generate
         -- first level of Booth's mul

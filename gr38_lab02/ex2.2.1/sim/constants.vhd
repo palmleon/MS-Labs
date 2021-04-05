@@ -8,4 +8,5 @@ package CONSTANTS is
    constant DRCAC : time := 2 ns;
    constant NumBit : integer := 4;	
    constant TP_MUX : time := 0.5 ns; 	
+   constant RAD : integer := 3;	
 end CONSTANTS;

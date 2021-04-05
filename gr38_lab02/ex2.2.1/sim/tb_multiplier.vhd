@@ -11,7 +11,9 @@ end MULTIPLIER_tb;
 architecture TEST of MULTIPLIER_tb is
 
 
-  constant numBit : integer := 4;    -- :=8  --:=16    
+  constant numBit : integer := 16;    
+                          --:=4  
+                          --:=8    
 
   --  input	 
   signal A_mp_i : std_logic_vector(numBit-1 downto 0) := (others => '0');
@@ -38,7 +40,7 @@ architecture TEST of MULTIPLIER_tb is
 begin
 
 -- MUL instantiation
-  MUL: BOOTHMUL generic map(numbit, 3)
+  MUL: BOOTHMUL generic map(numbit, RAD)
                 port map(A_mp_i, B_mp_i, Y_mp_i);
 
 
