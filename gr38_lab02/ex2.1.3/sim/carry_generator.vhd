@@ -20,6 +20,17 @@ end carry_generator;
   --*************************
 
 architecture structural of carry_generator is	
+
+	component PGnet_block is
+		generic (
+			PDELAY:		time := 3*NDDELAY;
+			GDELAY:		time := NDDELAY + IVDELAY);
+		port (
+			A :			in	std_logic;
+			B :			in	std_logic;
+			Pii, Gii :	out	std_logic);
+	end component PGnet_block;
+
 	component Gen_Gen is
 		generic (
 			GDELAY : time := 2*IVDELAY + NRDELAY + NDDELAY);
@@ -38,16 +49,22 @@ architecture structural of carry_generator is
 	end component Gen_Prop;
 
 	constant tree_height: integer := integer(log2(real(NBIT)));
-	type SignalMatrix is array(NBIT downto 1) of std_logic_vector(NBIT downto 0);
+	type SignalVector is array(NBIT downto 0) of std_logic;
+	type SignalMatrix is array(NBIT downto 1) of SignalVector;
 	signal p, g: SignalMatrix; -- propagate and generate signal matrix (breadboard-like structure)
 begin
-	PGnetwork: process(A, B) -- Since logic is trivial, it can be described behaviourally with no difference compared to its structural description
-	begin
-		for i in 0 to NBIT-1 loop
-			p(i+1)(i+1) <= a(i) xor b(i); -- by definition: P(i, i) = p_i
-			g(i+1)(i+1) <= a(i) and b(i); -- by definition: G(i, i) = g_i
-		end loop;
-	end process PGnetwork;
+	--PGnetwork: process(A, B) -- Since logic is trivial, it can be described behaviourally with no difference compared to its structural description
+	--begin
+	--	for i in 0 to NBIT-1 loop
+	--		p(i+1)(i+1) <= a(i) xor b(i); -- by definition: P(i, i) = p_i
+	--		g(i+1)(i+1) <= a(i) and b(i); -- by definition: G(i, i) = g_i
+	--	end loop;
+	--end process PGnetwork;
+	
+	PGnetwork:
+	for i in 0 to NBIT-1 generate
+		PG_i_i: PGnet_block port map (A=>a(i), B=>b(i), Pii=>p(i+1)(i+1), Gii=>g(i+1)(i+1));
+	end generate;
 	
 	G_1_0:	Gen_Gen port map (Pik=>p(1)(1), Gik=>g(1)(1), Gmj=>Cin, Gij=>g(1)(0)); -- exceptional block where Cin is inserted
 			
@@ -75,6 +92,7 @@ begin
 		end generate;		
 	end generate;	
 
+	Co(NBLOCKS-1) <= g(NBIT)(0); -- TODO remove (only for debug purposes)
 	-- TODO Full Carry Tree
 	
 end architecture;

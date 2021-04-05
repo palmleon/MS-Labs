@@ -19,20 +19,21 @@ architecture TEST of TB_CARRY_GENERATOR is
 			Cin :	in	std_logic;
 			Co :	out	std_logic_vector(NBLOCKS-1 downto 0));
 	end component carry_generator;
-
-	signal A_s, B_s: std_logic_vector(3 downto 0);
+	constant Nbit: integer := 4;			-- to change settings, modify this field! 
+	constant Nblocks: integer := 1;			-- to change settings, modify this field!
+	signal A_s, B_s: std_logic_vector(Nbit-1 downto 0);
 	signal Cin_s: std_logic;
-	signal Co_s: std_logic_vector(0 downto 0);
+	signal Co_s: std_logic_vector(Nblocks-1 downto 0);
 begin
-	DUT: carry_generator generic map (4, 1)
+	DUT: carry_generator generic map (Nbit, Nblocks)
 						 port map (A_s, B_s, Cin_s, Co_s);
 
 	Test: process
 		file 	 testfile: text;
 		variable testline: line;
-		variable A, B: bit_vector(3 downto 0);
+		variable A, B: bit_vector(Nbit-1 downto 0);
 		variable Cin: bit; 
-		variable Cout_exp: bit_vector(0 downto 0);
+		variable Cout_exp: bit_vector(Nblocks-1 downto 0);
 		variable char: character;
 		variable cnt: integer := 1;
 	begin
@@ -46,9 +47,12 @@ begin
 			read(testline, Cout_exp);
 			A_s <= to_stdlogicvector(A);
 			B_s <= to_stdlogicvector(B);
-			Cin_s <= to_stdulogic(Cin);
+			if Cin = '0' then Cin_s <= '0';
+			elsif Cin = '1' then Cin_s <= '1';
+			end if;
 			wait for 50 ns; -- long interval to be sure that computation has terminated
 			assert Co_s = to_stdlogicvector(Cout_exp) report "ERROR on Test " & integer'image(cnt);
+			cnt := cnt + 1;
 		end loop;
 		file_close(testfile);
 		wait;
