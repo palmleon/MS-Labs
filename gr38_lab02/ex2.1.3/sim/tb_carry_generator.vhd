@@ -19,8 +19,8 @@ architecture TEST of TB_CARRY_GENERATOR is
 			Cin :	in	std_logic;
 			Co :	out	std_logic_vector(NBLOCKS-1 downto 0));
 	end component carry_generator;
-	constant Nbit: integer := 4;			-- to change settings, modify this field! 
-	constant Nblocks: integer := 1;			-- to change settings, modify this field!
+	constant Nbit: integer := 16;								-- FOR TESTING, MODIFY THIS FIELD! 
+	constant Nblocks: integer := 4;								-- FOR TESTING, MODIFY THIS FIELD!
 	signal A_s, B_s: std_logic_vector(Nbit-1 downto 0);
 	signal Cin_s: std_logic;
 	signal Co_s: std_logic_vector(Nblocks-1 downto 0);
