@@ -6,8 +6,8 @@ use WORK.constants.all;
 
 entity carry_generator is
 	generic (
-		NBIT :				integer := numBit;
-		NBIT_PER_BLOCK:	 	integer := (numBit / 4));
+		NBIT :				integer := numBit; 			-- This Carry Generator accepts any NBIT and NBIT_PER_BLOCK such that NBIT = 2**k
+		NBIT_PER_BLOCK:	 	integer := (numBit / 4));			-- and NBIT_PER_BLOCK = 2**j, where j <= k
 	port (
 		A :		in	std_logic_vector(NBIT-1 downto 0);
 		B :		in	std_logic_vector(NBIT-1 downto 0);
@@ -35,7 +35,7 @@ architecture structural of carry_generator is
 		generic (
 			GDELAY : time := 2*IVDELAY + NRDELAY + NDDELAY);
 		port (
-			Pik, Gik, Gmj:	IN	std_logic;	-- m = k-1 by definition
+			Pik, Gik, Gmj:	IN	std_logic;			-- m = k-1 by definition
 			Gij:			OUT	std_logic);
 	end component Gen_Gen;
 
@@ -44,7 +44,7 @@ architecture structural of carry_generator is
 		    PDELAY : time := IVDELAY + NDDELAY;
 			GDELAY : time := 2*IVDELAY + NRDELAY + NDDELAY);
 		port (
-			Pik, Gik, Pmj, Gmj:	IN	std_logic;	-- m = k-1 by definition
+			Pik, Gik, Pmj, Gmj:	IN	std_logic;		-- m = k-1 by definition
 			Pij, Gij:			OUT	std_logic);
 	end component Gen_Prop;
 
@@ -64,7 +64,7 @@ begin
 			
 	main_tree: 
 		-- given i, j for a PG block, by definition: i = (pos+1) * 2**h, j = 1 + pos * 2**h (for a G block, j = 0 always)
-		-- h is the current height in the tree, where 0 is the height of the PG network (Blocks where i and j are the same)
+		-- h is the current height in the tree, where 0 is the height of the PG network (Blocks such that i and j are the same)
 		-- pos is the horizontal position, counting from the right (right-most block in a row is block 0 for that row)
 		-- the main tree is the binary tree obtained when NBLOCKS = 1 (the only Cout is the one on the MSB) 
 	for h in 1 to tree_height generate 
@@ -89,34 +89,34 @@ begin
 		end generate;		
 	end generate;	
 	
-	-- The Full Carry Tree contains all the blocks requested and it is built starting from its core: the Main Tree
-	-- Given a column i whose Co is requested, we generate the corresponding G block and define all the signals it requires.
+	-- The Full Carry Tree is built starting from its core: the Main Tree
+	-- Given a column i whose Co is requested, we generate the corresponding G block and all the necessary PG blocks.
 	-- For every block (PG or G), we want that the highest n.bits should be provided by the Main Tree.
-	-- For this reason, the RIB (Right Input Block - k-1 to j) is defined as the nearest block in the Main Tree that provides the highest possible n.bits
-	-- In this way, we only need to build the required blocks at column i, since the RIB has been already built
+	-- For this reason, the RIB (Right Input Block - k-1 to j) is defined as the nearest block in the Main Tree that provides the highest possible n.bits, 
+	-- which is equal to the maximum 2**k such that is less than i-j+1 (or than i when j = 0)
+	-- In this way, we only need to build the required blocks at column i, since the RIB has been always already built
 	full_tree:
-	-- for Cindex in 1 to NBLOCKS generate
-	for step_width in 2 to log2nblocks generate												-- every iteration changes the Current Step, dividing it by 2 every time
+	for step_width in 2 to log2nblocks generate											-- at each iteration, we build only the Co that are CurrStep bits away
 		constant CurrStep : integer := NBIT / 2**step_width;
 		begin
 		full_tree_nested:
-		for Cindex in 1 to NBIT/(2*CurrStep) - 1 generate									-- every cycle build the blocks related to a columns whose index is are multiple of the current step
-			constant i: integer := (2*Cindex + 1) * CurrStep;								-- the index is such that we never build a generate block on a column that already has it
+		for Cindex in 1 to NBIT/(2*CurrStep) - 1 generate									-- at each iteration, we build only columns that have not A G block yet (i.e. not built in the Main Tree)
+			constant i: integer := (2*Cindex + 1) * CurrStep;								-- Cindex is such that we never build a G block where it already exists (i.e. built in the Main Tree of at a previous iteration)
 			begin					  																			
 			column_build:
-			for h in 1 to tree_height generate												-- we want to provide all the P and the G signals required
+			for h in 1 to tree_height generate										-- we need to provide all the P and the G signals required
 				PG_build:																
-				if (i > 2**h and i mod 2**h > 2**(h-1)) generate							-- given a level h, the nbits we have to manage at that level is (i mod 2**h)
-					constant j: integer := (i / 2**h) * 2**h + 1;						-- given a level h, we can manage number of bits from 2**(h-1) up to 2**h included
-					constant k: integer := (i / 2**(h-1)) * 2**(h-1) + 1;				-- if we have to manage less bits, we do not need to build a block as they are managed elsewhere
-					begin																-- the first condition is used to avoid building another G block (to build later) 
+				if (i > 2**h and i mod 2**h > 2**(h-1)) generate							-- given a level h, the nbits we have to manage at that level is nbits = i mod 2**h
+					constant j: integer := (i / 2**h) * 2**h + 1;							-- given a level h, we can manage nbits such that  nbits > 2**(h-1)  
+					constant k: integer := (i / 2**(h-1)) * 2**(h-1) + 1;						-- if we have to manage less bits, we do not need to build a block as they are managed elsewhere
+				begin													-- the first condition (i > 2**h) is used to avoid building a PG block over the G block (to build later) 
 					PG_i_j: Gen_Prop port map  (Pik=>p(i)(k), 		Gik=>g(i)(k), 
 												Pmj=>p(k-1)(j), 	Gmj=>g(k-1)(j), 
 												Pij=>p(i)(j), 		Gij=>g(i)(j));
 				end generate;
 				G_build:
-				if (i < 2**h and i > 2**(h-1)) generate										-- both the condition avoid to build multiple G blocks
-					G_i_0: Gen_Gen port map    (Pik=>p(i)(2**(h-1) + 1),					-- generation of the corresponding G block
+				if (i < 2**h and i > 2**(h-1)) generate									-- both the conditions avoid to build multiple G blocks for the same column
+					G_i_0: Gen_Gen port map    (Pik=>p(i)(2**(h-1) + 1),						-- generation of the G block
 									 		 	Gik=>g(i)(2**(h-1) + 1),
 									 		 	Gmj=>g(2**(h-1))(0), 
 									 		 	Gij=>g(i)(0));
@@ -129,7 +129,7 @@ begin
 	for Cindex in 1 to NBLOCKS generate
 		constant i: integer := NBIT/NBLOCKS*Cindex;
 		begin
-		Co(Cindex-1) <= g(i)(0);															-- connecting the g(i)(0) signal to C
+		Co(Cindex-1) <= g(i)(0);												-- connecting the g(i)(0) signal to Ci
 	end generate;
 	
 
