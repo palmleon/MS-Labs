@@ -72,8 +72,8 @@ architecture structural of SUM_GENERATOR is
   component CARRY_SEL_BLOCK is
       generic 
       (
-          DRCAS : time    := 0 ns;
-          DRCAC : time    := 0 ns;
+          DRCAS : time    := DRCAS;
+          DRCAC : time    := DRCAC;
           N     : integer := NBIT_PER_BLOCK    
       );
       port 
