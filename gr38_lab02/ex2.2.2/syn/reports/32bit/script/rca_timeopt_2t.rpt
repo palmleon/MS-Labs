@@ -1,0 +1,77 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : BOOTHMUL
+Version: F-2011.09-SP3
+Date   : Wed Apr  7 17:17:55 2021
+****************************************
+
+Operating Conditions: typical   Library: NangateOpenCellLibrary
+Wire Load Model Mode: top
+
+  Startpoint: B[1] (input port)
+  Endpoint: P[7] (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  BOOTHMUL           5K_hvratio_1_1        NangateOpenCellLibrary
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  input external delay                                    0.00       0.00 f
+  B[1] (in)                                               0.00       0.00 f
+  other_rows_1/encIn[0] (booth_row_N8_RAD3)               0.00       0.00 f
+  other_rows_1/enc/inc[0] (encoder_9)                     0.00       0.00 f
+  other_rows_1/enc/U6/ZN (NAND2_X1)                       0.05       0.05 r
+  other_rows_1/enc/U3/ZN (OAI21_X1)                       0.05       0.09 f
+  other_rows_1/enc/U4/ZN (AOI21_X1)                       0.07       0.16 r
+  other_rows_1/enc/enc[0] (encoder_9)                     0.00       0.16 r
+  other_rows_1/mux/SEL[0] (MUX51_GENERIC_N8_1)            0.00       0.16 r
+  other_rows_1/mux/U10/ZN (INV_X1)                        0.04       0.20 f
+  other_rows_1/mux/U28/ZN (NOR3_X2)                       0.14       0.34 r
+  other_rows_1/mux/U13/ZN (AOI22_X1)                      0.05       0.39 f
+  other_rows_1/mux/U11/ZN (NAND2_X1)                      0.04       0.43 r
+  other_rows_1/mux/Y[3] (MUX51_GENERIC_N8_1)              0.00       0.43 r
+  other_rows_1/add/A[3] (RCA_N8)                          0.00       0.43 r
+  other_rows_1/add/FAi_3/A (FA_229)                       0.00       0.43 r
+  other_rows_1/add/FAi_3/U4/Z (XOR2_X1)                   0.04       0.47 f
+  other_rows_1/add/FAi_3/U2/ZN (AOI22_X1)                 0.06       0.53 r
+  other_rows_1/add/FAi_3/U1/ZN (INV_X1)                   0.03       0.56 f
+  other_rows_1/add/FAi_3/Co (FA_229)                      0.00       0.56 f
+  other_rows_1/add/FAi_4/Ci (FA_228)                      0.00       0.56 f
+  other_rows_1/add/FAi_4/U2/ZN (AOI22_X1)                 0.06       0.62 r
+  other_rows_1/add/FAi_4/U1/ZN (INV_X1)                   0.03       0.65 f
+  other_rows_1/add/FAi_4/Co (FA_228)                      0.00       0.65 f
+  other_rows_1/add/FAi_5/Ci (FA_227)                      0.00       0.65 f
+  other_rows_1/add/FAi_5/U2/ZN (AOI22_X1)                 0.06       0.71 r
+  other_rows_1/add/FAi_5/U1/ZN (INV_X1)                   0.03       0.74 f
+  other_rows_1/add/FAi_5/Co (FA_227)                      0.00       0.74 f
+  other_rows_1/add/FAi_6/Ci (FA_226)                      0.00       0.74 f
+  other_rows_1/add/FAi_6/U2/ZN (AOI22_X1)                 0.06       0.80 r
+  other_rows_1/add/FAi_6/U1/ZN (INV_X1)                   0.03       0.83 f
+  other_rows_1/add/FAi_6/Co (FA_226)                      0.00       0.83 f
+  other_rows_1/add/FAi_7/Ci (FA_225)                      0.00       0.83 f
+  other_rows_1/add/FAi_7/U3/Z (XOR2_X1)                   0.07       0.89 f
+  other_rows_1/add/FAi_7/S (FA_225)                       0.00       0.89 f
+  other_rows_1/add/S[7] (RCA_N8)                          0.00       0.89 f
+  other_rows_1/nextSum[7] (booth_row_N8_RAD3)             0.00       0.89 f
+  P[7] (out)                                              0.00       0.90 f
+  data arrival time                                                  0.90
+
+  max_delay                                               3.32       3.32
+  output external delay                                   0.00       3.32
+  data required time                                                 3.32
+  --------------------------------------------------------------------------
+  data required time                                                 3.32
+  data arrival time                                                 -0.90
+  --------------------------------------------------------------------------
+  slack (MET)                                                        2.42
+
+
+1
