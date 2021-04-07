@@ -11,21 +11,23 @@ architecture TEST of TB_CARRY_GENERATOR is
 
 	component carry_generator is
 		generic (
-			NBIT :			integer := numBit;
-			NBLOCKS:	 	integer := (numBit / 4));
+			NBIT :				integer := numBit;
+			NBIT_PER_BLOCK:	 	integer := (numBit / 4));
 		port (
 			A :		in	std_logic_vector(NBIT-1 downto 0);
 			B :		in	std_logic_vector(NBIT-1 downto 0);
 			Cin :	in	std_logic;
-			Co :	out	std_logic_vector(NBLOCKS-1 downto 0));
+			Co :	out	std_logic_vector(NBIT/NBIT_PER_BLOCK-1 downto 0));
 	end component carry_generator;
-	constant Nbit: integer := 32;								-- FOR TESTING, MODIFY THIS FIELD! 
-	constant Nblocks: integer := 8;								-- FOR TESTING, MODIFY THIS FIELD!
+
+	constant NBIT: integer := 32;										-- FOR TESTING, MODIFY THIS FIELD! 
+	constant NBIT_PER_BLOCK: integer := 4;								-- FOR TESTING, MODIFY THIS FIELD!
+	constant Nblocks : integer := NBIT/NBIT_PER_BLOCK;
 	signal A_s, B_s: std_logic_vector(Nbit-1 downto 0);
 	signal Cin_s: std_logic;
 	signal Co_s: std_logic_vector(Nblocks-1 downto 0);
 begin
-	DUT: carry_generator generic map (Nbit, Nblocks)
+	DUT: carry_generator generic map (NBIT, NBIT_PER_BLOCK)
 						 port map (A_s, B_s, Cin_s, Co_s);
 
 	Test: process

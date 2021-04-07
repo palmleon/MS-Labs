@@ -6,13 +6,13 @@ use WORK.constants.all;
 
 entity carry_generator is
 	generic (
-		NBIT :			integer := numBit;
-		NBLOCKS:	 	integer := (numBit / 4));
+		NBIT :				integer := numBit;
+		NBIT_PER_BLOCK:	 	integer := (numBit / 4));
 	port (
 		A :		in	std_logic_vector(NBIT-1 downto 0);
 		B :		in	std_logic_vector(NBIT-1 downto 0);
 		Cin :	in	std_logic;
-		Co :	out	std_logic_vector(NBLOCKS-1 downto 0));
+		Co :	out	std_logic_vector(NBIT/NBIT_PER_BLOCK-1 downto 0));
 end carry_generator;
 
   --*************************
@@ -48,6 +48,7 @@ architecture structural of carry_generator is
 			Pij, Gij:			OUT	std_logic);
 	end component Gen_Prop;
 
+	constant NBLOCKS: integer := NBIT/NBIT_PER_BLOCK;
 	constant tree_height: integer := integer(log2(real(NBIT)));
 	constant log2nblocks: integer := integer(log2(real(NBLOCKS)));
 	type SignalVector is array(NBIT downto 0) of std_logic;
