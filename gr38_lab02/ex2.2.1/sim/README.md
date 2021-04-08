@@ -15,6 +15,5 @@ Therefore the multiplier only instanciates rows while the other submodules are n
 
  **NOTICE:** when reading signals,"p" and "m" stand for "plus" (+) and "minus" (-)
 
-## About the expansion
 
 
