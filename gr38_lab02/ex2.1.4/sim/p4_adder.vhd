@@ -52,12 +52,16 @@ architecture structural of P4_ADDER is
     signal carries: std_logic_vector(N downto 0);
 
     begin
+        --assign the firts carry
         carries(0) <= Ci;
 
+        --carry generator, generates all carries needed
         CarryG: carry_generator port map(A, B, Ci, carries(N downto 1));
 
+        --sum generator
         SumG: sum_generator port map(A, B, carries(N-1 downto 0), S);
 
+        --assign the last carry as output carry
         Co <= carries(N);
     
 end architecture;

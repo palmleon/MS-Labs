@@ -69,7 +69,7 @@ begin
     B(27 downto 24) <= PRN(14 downto 11);
     B(30 downto 28) <= PRN(15 downto 13);
 
-    --assign the carrie
+    --assign the carries
     C(0) <= PRN(5);
     C(1) <= PRN(9);
     C(2) <= PRN(7);

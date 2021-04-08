@@ -8,7 +8,7 @@ entity CARRY_SEL_BLOCK is
     (
         DRCAS : time     := 0 ns;
         DRCAC : time     := 0 ns;
-	DELAY_MUX : time := 0 ns;
+	    DELAY_MUX : time := 0 ns;
         N     : integer  := NumBit
     );
     port 
@@ -35,6 +35,7 @@ architecture behavioral of CARRY_SEL_BLOCK is
         S0 <= A + B + '0' after DRCAS;
         S1 <= A + B + '1' after DRCAS;
 
+        -- mux process
         process (S0, S1, Ci)
         begin
             case Ci is
