@@ -90,32 +90,32 @@ begin
 	end generate;	
 	
 	-- The Full Carry Tree is built starting from its core: the Main Tree
-	-- Given a column i whose Co is requested, we generate the corresponding G block and all the necessary PG blocks.
+	-- Given a column i whose Ci is requested, we generate the corresponding G block and all the necessary PG blocks.
 	-- For every block (PG or G), we want that the highest n.bits should be provided by the Main Tree.
 	-- For this reason, the RIB (Right Input Block - k-1 to j) is defined as the nearest block in the Main Tree that provides the highest possible n.bits, 
-	-- which is equal to the maximum 2**k such that is less than i-j+1 (or than i when j = 0)
-	-- In this way, we only need to build the required blocks at column i, since the RIB has been always already built
+	-- which is equal to the maximum 2**k such that is less than i-j+1 (or than i, when j = 0)
+	-- In this way, we only need to build the required blocks at column i, since the RIB has been always already built by definition
 	full_tree:
 	for step_width in 2 to log2nblocks generate											-- at each iteration, we build only the Co that are CurrStep bits away
 		constant CurrStep : integer := NBIT / 2**step_width;
 		begin
 		full_tree_nested:
-		for Cindex in 1 to NBIT/(2*CurrStep) - 1 generate									-- at each iteration, we build only columns that have not A G block yet (i.e. not built in the Main Tree)
-			constant i: integer := (2*Cindex + 1) * CurrStep;								-- Cindex is such that we never build a G block where it already exists (i.e. built in the Main Tree of at a previous iteration)
+		for Cindex in 1 to NBIT/(2*CurrStep) - 1 generate									-- at each iteration, we build only the columns that have not a G block yet (i.e. not present in the Main Tree)
+			constant i: integer := (2*Cindex + 1) * CurrStep;								-- Cindex is such that we never build a G block where it already exists (i.e. built in the Main Tree or at a previous iteration)
 			begin					  																			
 			column_build:
 			for h in 1 to tree_height generate										-- we need to provide all the P and the G signals required
 				PG_build:																
 				if (i > 2**h and i mod 2**h > 2**(h-1)) generate							-- given a level h, the nbits we have to manage at that level is nbits = i mod 2**h
 					constant j: integer := (i / 2**h) * 2**h + 1;							-- given a level h, we can manage nbits such that  nbits > 2**(h-1)  
-					constant k: integer := (i / 2**(h-1)) * 2**(h-1) + 1;						-- if we have to manage less bits, we do not need to build a block as they are managed elsewhere
-				begin													-- the first condition (i > 2**h) is used to avoid building a PG block over the G block (to build later) 
+					constant k: integer := (i / 2**(h-1)) * 2**(h-1) + 1;						-- if we have to manage less bits, we do not need to build a block as they are managed in the levels above
+				begin													-- the first condition (i > 2**h) is used to avoid building a PG block over the G block 
 					PG_i_j: Gen_Prop port map  (Pik=>p(i)(k), 		Gik=>g(i)(k), 
 												Pmj=>p(k-1)(j), 	Gmj=>g(k-1)(j), 
 												Pij=>p(i)(j), 		Gij=>g(i)(j));
 				end generate;
 				G_build:
-				if (i < 2**h and i > 2**(h-1)) generate									-- both the conditions avoid to build multiple G blocks for the same column
+				if (i < 2**h and i > 2**(h-1)) generate									-- this condition avoids to build multiple G blocks for the same column
 					G_i_0: Gen_Gen port map    (Pik=>p(i)(2**(h-1) + 1),						-- generation of the G block
 									 		 	Gik=>g(i)(2**(h-1) + 1),
 									 		 	Gmj=>g(2**(h-1))(0), 
