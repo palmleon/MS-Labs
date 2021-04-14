@@ -1,4 +1,7 @@
 # Microelectronic Systems Laboratories 
+<p align="center">
+<a href="https://imgbb.com/"><img src="https://i.ibb.co/Ny6wg11/polito-logo-new.png"></a>
+</p>  
 
 <p align="center">
  <img alt="Languages" src="https://img.shields.io/badge/Languages-VHDL-orange"/>
@@ -17,6 +20,8 @@
   - [requirements](gr38_lab02/Lab2.pdf)
   - [solution](gr38_lab02) 
 * [Lab3](#lab3)
+  - [requirements](gr38_lab03/lab3.pdf)
+  - [solution](gr38_lab03) 
 * [Lab4](#lab4)
 * [Lab5](#lab5)
 * [Lab6](#lab6)
