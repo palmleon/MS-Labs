@@ -50,7 +50,10 @@ Hierarchical Arithmetical Blocks
 
 ## Lab3
 
-// TODO: to be written
+Windowed Register File and Low-Power Synthesis
+- Register File
+- Windowed Register File (Register File + Register Management Logic)
+- SI-PI-SO-ALU for Low-Power Synthesis
 
 ## Lab4
 
