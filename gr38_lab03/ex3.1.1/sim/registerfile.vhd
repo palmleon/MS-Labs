@@ -31,8 +31,8 @@ end register_file;
 architecture A of register_file is
 
         -- suggested structures
-        subtype REG_ADDR is natural range 0 to 31; -- using natural type
-        type REG_ARRAY is array(REG_ADDR) of std_logic_vector(63 downto 0);
+        subtype REG_ADDR is natural range 0 to NRegs-1; -- using natural type
+        type REG_ARRAY is array(REG_ADDR) of std_logic_vector(NData-1 downto 0);
         signal REGISTERS : REG_ARRAY;
 
 
@@ -55,14 +55,14 @@ begin
 	
           if wr = '1' then                -- Write port 1
 	     registers(to_integer(unsigned(add_wr))) <= datain;
-	     if rd1 = '1' then             --  write/read
-	        out1 <= datain;
-	     end if;
+	     	if rd1 = '1' then             --  write/read
+	        	out1 <= datain;
+	     	end if;
 	   
-             if rd2 = '1' then             --  write/read
-	        out2 <= datain;
-	     end if;
-          end if;
+            if rd2 = '1' then             --  write/read
+	        	out2 <= datain;
+	     	end if;
+		  end if;
        else                              -- !enable 
           out1 <= (others => 'Z');
           out2 <= (others => 'Z');
