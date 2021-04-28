@@ -14,32 +14,32 @@ entity RML is
 		ack:					in 	std_logic; 			-- from Memory		
 		rst, clk:				in	std_logic;
 		Win, R1in, R2in:		in  std_logic;			-- from instructions;		
-		logWaddr, logR1addr, logR2addr: in std_logic_vector(log2(N)+2 downto 0);		-- the MSB tells whether we want to access a global register or a window register, the other bits are required to point up to 4N-1 locations
-		phyWaddr, phyR1addr, phyR2addr: out std_logic_vector(ceil(log2(2*N*F+M))-1 downto 0);
+		logWaddr, logR1addr, logR2addr: in std_logic_vector(integer(log2(real(N)))+2 downto 0);		-- the MSB tells whether we want to access a global register or a window register, the other bits are required to point up to 4N-1 locations
+		phyWaddr, phyR1addr, phyR2addr: out std_logic_vector(integer(ceil(log2(real(2*N*F+M))))-1 downto 0);
 		WtoRF, R1toRF, R2toRF:	out	std_logic;			-- during a SPILL/FILL, the RML must write/read to/from Memory, so it needs to control the signals that enable a read or a write in those cases	
 		spill, fill:			out	std_logic;				-- SPILL/FILL are used to inform both the CU and the MMU when SPILL/FILL occurs
-		spillend, fillend:		out std_logic;			-- notify the CU when SPILL/FILL has terminated
+		spillend, fillend:		out std_logic			-- notify the CU when SPILL/FILL has terminated
 	);  
 end RML;
 
 architecture HLSM of RML is
 	type StateType is (Reset, Idle, Rtrn_NoFill, Rtrn_Fill1, Rtrn_Fill2, Rtrn_Fill3, Rtrn_Fill4, Call_NoSpill, Call_Spill1, Call_Spill2, Call_Spill3);
-	constant zeros : unsigned(ceil(log2(F+1)-1 downto 0) := (others => '0'); 										-- used for zero-padding when computing the physical address
 	signal CurrState, NextState: StateType;
-	signal CurrSWP, NextSWP, CurrCWP, NextCWP, CurrCS, NextCS, CurrCR, NextCR: unsigned(ceil(log2(F))-1 downto 0); 	-- CS stands for CANSAVE, CR stands for CANRESTORE
-	signal CurrMemCntr, NextMemCntr: unsigned(log2(N) downto 0); 													-- used to access the window, one reg per time, during a SPILL/FILL (base address of the window = SWP)
+	signal CurrSWP, NextSWP, CurrCWP, NextCWP, CurrCS, NextCS, CurrCR, NextCR: unsigned(integer(ceil(log2(real(F))))-1 downto 0); 	-- CS stands for CANSAVE, CR stands for CANRESTORE
+	signal CurrMemCntr, NextMemCntr: unsigned(integer(real(log2(real(N)))) downto 0); -- used to access the window, one reg per time, during a SPILL/FILL (base address of the window = SWP)
 begin
 	SynchProc: process(clk)
+	begin
 		if (rst = '1') then
 			CurrState <= Reset;
-			SWP <= (others => '0');
-			CWP <= (others => '0');
+			CurrSWP <= (others => '0');
+			CurrCWP <= (others => '0');
 			CurrCS <= (others => '0');
 			CurrCR <= (others => '0');
 		elsif (rst = '0') then
 			CurrState <= NextState;
-			SWP <= NextSWP;
-			CWP <= NextCWP;
+			CurrSWP <= NextSWP;
+			CurrCWP <= NextCWP;
 			CurrCS <= NextCS;
 			CurrCR <= NextCR;
 		end if;
@@ -57,24 +57,21 @@ begin
 		fill <= '0';	fillend <= '0';
 		WtoRF <= '0';	R1toRF <= '0';	R2toRF <= '0';
 		if (logWaddr(logWaddr'high) = '1') then												-- logical address points to a global register
-			phyWaddr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned("" & logWaddr(logWaddr'high-1)))), phyWaddr - logWaddr'high - 1) & logWaddr(logWaddr'high-2 downto 0); -- sum F and logWaddr'MSB, then concatenate to the rest of the logical address
+			phyWaddr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length - 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum F and logWaddr'MSB, then concatenate to the rest of the logical address
 		else 																				-- logical address points to a window register
-			phyWaddr	<= std_logic_vector(to_integer(CWP) + to_integer(unsigned("" & logWaddr(logWaddr'high-1))), phyWaddr - logWaddr'high - 1) & logWaddr(logWaddr'high-2 downto 0); -- sum CWP and logWaddr'MSB, then concatenate to the rest of the logical address
+			phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length - 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum CWP and logWaddr'MSB, then concatenate to the rest of the logical address
 		end if;
-		if (logR1addr(logRaddr'high) = '1') then 											-- same for the other address signals
-			phyR1addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned("" & logR1addr(logR1addr'high-1)))), phyR1addr - logR1addr'high - 1) & logR1addr(logR1addr'high-2 downto 0);
+		if (logR1addr(logR1addr'high) = '1') then 											-- same for the other address signals
+			phyR1addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logR1addr(logR1addr'high-1))), phyR1addr'length - logR1addr'length - 1)) & logR1addr(logR1addr'high-2 downto 0);
 		else
-			phyR1addr	<= std_logic_vector(to_integer(CWP) + to_integer(unsigned("" & logR1addr(logR1addr'high-1))), phyR1addr - logR1addr'high - 1) & logR1addr(logR1addr'high-2 downto 0);
+			phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logR1addr(logR1addr'high-1))), phyR1addr'length - logR1addr'length - 1)) & logR1addr(logR1addr'high-2 downto 0);
 		end if;
-		if (logR2addr(logRaddr'high) = '1') then
-			phyR2addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned("" & logR2addr(logR2addr'high-1)))), phyR2addr - logR2addr'high - 1) & logR2addr(logR2addr'high-2 downto 0);
+		if (logR2addr(logR2addr'high) = '1') then
+			phyR2addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logR2addr(logR2addr'high-1))), phyR2addr'length - logR2addr'length - 1)) & logR2addr(logR2addr'high-2 downto 0);
 		else
-			phyR2addr	<= std_logic_vector(to_integer(CWP) + to_integer(unsigned("" & logR2addr(logR2addr'high-1))), phyR2addr - logR2addr'high - 1) & logR2addr(logR2addr'high-2 downto 0);
+			phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logR2addr(logR2addr'high-1))), phyR2addr'length - logR2addr'length - 1)) & logR2addr(logR2addr'high-2 downto 0);
 		end if; 
-		-- BEWARE WtoRF, R1toRF, R2toRF and physical addresses!
-		-- OUTPUT SIGNALS: WtoRF, R1toRF, R2toRF, physical addresses
 		case CurrState is
-			-- TODO manage output signals in ALL states!
 			when Reset	 		=>
 				NextCS <= to_unsigned(F, CurrCS'length);
 				if (call = '1' and rtrn = '0') then									-- after reset, only a CALL is accepted; eventual RETURNs would not modify the window (FATAL ERROR, but SW-related)
@@ -109,7 +106,7 @@ begin
 			when Call_Spill2	=>													-- state where a window is sent to Memory
 				NextMemCntr <= to_unsigned(to_integer(CurrMemCntr) + 1, NextMemCntr'length);			
 				WtoRF <= '0';	R1toRF <= '1';	R2toRF <= '0';						-- the RML knows nothing about the DataBus, it only expects to read data to send to Memory
-				phyR1addr <= std_logic_vector(SWP & CurrMemCntr);					-- a window is 2N reg wide: the window number and the offset can be concatenated to obtain the physical address to access to
+				phyR1addr <= std_logic_vector(CurrSWP & CurrMemCntr);					-- a window is 2N reg wide: the window number and the offset can be concatenated to obtain the physical address to access to
 				if (to_integer(CurrMemCntr) = 2*N-1) then							-- terminating condition: 2N regs have been sent
 					NextState <= Call_Spill3;
 				elsif (to_integer(CurrMemCntr) /= 2*N-1) then
@@ -138,7 +135,7 @@ begin
 			when Rtrn_Fill3		=>												-- state where a window is read from Memory
 				NextMemCntr <= to_unsigned(to_integer(CurrMemCntr) - 1, NextMemCntr'length);
 				WtoRF <= '1';	R1toRF <= '0';	R2toRF <= '0';					-- the RML knows nothing about the DataBus, it only expects to receive data to store in the RegFile
-				phyWaddr <= std_logic_vector(SWP & CurrMemCntr);				-- a window is 2N reg wide: the window number and the offset can be concatenated to obtain the physical address to access to
+				phyWaddr <= std_logic_vector(CurrSWP & CurrMemCntr);				-- a window is 2N reg wide: the window number and the offset can be concatenated to obtain the physical address to access to
 				if (to_integer(CurrMemCntr) = 0) then							-- terminating condition: 2N regs have been stored in the RegFile
 					NextState <= Rtrn_Fill4;
 				elsif (to_integer(CurrMemCntr) /= 0) then
