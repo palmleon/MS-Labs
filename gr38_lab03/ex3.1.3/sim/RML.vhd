@@ -98,8 +98,8 @@ begin
 			phyR2addr <= CWPplusLogR2AddrMSB(phyR2addr'length - logR2addr'length + 1 downto 0) & logR2addr(logR2addr'high-2 downto 0); 
 		end if;
 		case CurrState is
-			when Reset	 		=>
-				ready <= '1';
+			when Reset	 		=>													-- conceptually, this state is almost identical to Idle, but it has to initialize CANSAVE. Moreover, in this state no RETURN is accepted
+				ready <= '1';														-- this signal informs the CU that the RegFile is ready to manage a subroutine
 				WtoRF <= Win; 														-- in this state, W/R signals are passed through (transparent RML)
 				R1toRF <= R1in;
 				R2toRF <= R2in;
@@ -109,16 +109,16 @@ begin
 				elsif (call = '1' and rtrn = '0' and CurrCS = to_unsigned(0, CurrCS'length)) then
 					NextState <= Call_Spill1;
 				end if;
-			when Idle	 		=>	
-				ready <= '1';														-- state where we are within a certain Subroutine (neither CALL nor RETURN)
+			when Idle	 		=>													-- state where we are within a certain Subroutine (neither CALL nor RETURN)
+				ready <= '1';														
 				WtoRF <= Win; 														-- in this state, W/R signals are passed through (transparent RML)
 				R1toRF <= R1in;
 				R2toRF <= R2in;
-				if (call = '1' and rtrn = '0' and CurrCS /= to_unsigned(0, CurrCS'length)) then
+				if (call = '1' and rtrn = '0' and CurrCS /= to_unsigned(0, CurrCS'length)) then		-- if CANSAVE = 0, then there are no more windows available: a SPILL is required
 					NextState <= Call_NoSpill1;
 				elsif (call = '1' and rtrn = '0' and CurrCS = to_unsigned(0, CurrCS'length)) then
 					NextState <= Call_Spill1;
-				elsif (call = '0' and rtrn = '1' and CurrCR /= to_unsigned(0, CurrCR'length)) then
+				elsif (call = '0' and rtrn = '1' and CurrCR /= to_unsigned(0, CurrCR'length)) then	-- if CANRESTORE = 0, the parent should be withdrawn from memory: a FILL is required
 					NextState <= Rtrn_NoFill1;
 				elsif (call = '0' and rtrn = '1' and CurrCR = to_unsigned(0, CurrCR'length)) then
 					NextState <= Rtrn_Fill1;
@@ -132,7 +132,7 @@ begin
 				--NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) - 1, NextCS'length);		-- after a CALL, n. free windows has decremented
 				NextState <= Call_NoSpill2;
-			when Call_NoSpill2	=>
+			when Call_NoSpill2	=>													-- state required to let CANRESTORE update
 				NextState <= Idle;
 			when Call_Spill1	=>
 				spill <= '1';
@@ -153,12 +153,12 @@ begin
 				end if;
 			when Call_Spill3	=>
 				if (to_integer(CurrSWP) = F - 1) then
-					NextSWP <= to_unsigned(0, NextSWP'length);			-- the base address of the window to restore is initialized
+					NextSWP <= to_unsigned(0, NextSWP'length);			-- SWP is updated
 				else
 					NextSWP <= to_unsigned(to_integer(CurrSWP) + 1, NextSWP'length);
 				end if;
 				if (to_integer(CurrCWP) = F - 1) then
-					NextCWP <= to_unsigned(0, NextCWP'length);			-- the base address of the window to restore is initialized
+					NextCWP <= to_unsigned(0, NextCWP'length);			-- CWP is updated
 				else
 					NextCWP <= to_unsigned(to_integer(CurrCWP) + 1, NextCWP'length);
 				end if;
@@ -176,7 +176,7 @@ begin
 				--NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) + 1, NextCS'length);	-- after RETURN, one window has become available
 				NextState <= Rtrn_NoFill2;
-			when Rtrn_NoFill2	=>
+			when Rtrn_NoFill2	=>												-- state required to let CANRESTORE update
 				NextState <= Idle;
 			when Rtrn_Fill1		=>
 				fill <= '1';
@@ -193,7 +193,7 @@ begin
 					NextSWP <= to_unsigned(to_integer(CurrSWP) - 1, NextSWP'length);
 				end if;
 				if (to_integer(CurrCWP) = 0) then
-					NextCWP <= to_unsigned(F - 1, NextCWP'length);			-- the base address of the window to restore is initialized
+					NextCWP <= to_unsigned(F - 1, NextCWP'length);			
 				else
 					NextCWP <= to_unsigned(to_integer(CurrCWP) - 1, NextCWP'length);
 				end if;
