@@ -28,6 +28,7 @@ architecture HLSM of RML is
 	signal CurrState, NextState: StateType;
 	signal CurrSWP, NextSWP, CurrCWP, NextCWP, CurrCS, NextCS, CurrCR, NextCR: unsigned(integer(ceil(log2(real(F))))-1 downto 0); 	-- CS stands for CANSAVE, CR stands for CANRESTORE
 	signal CurrMemCntr, NextMemCntr: unsigned(integer(real(log2(real(N)))) downto 0); -- used to access the window, one reg per time, during a SPILL/FILL (base address of the window = SWP)
+	constant zeros: unsigned(CurrCWP'length-1 downto 0) := (others => '0');			-- used for zero padding when computing the physical address of the reg to access to (see below)
 begin
 	SynchProc: process(clk)
 	begin
@@ -47,6 +48,8 @@ begin
 	end process;
 
 	CombProc: process(CurrState, CurrSWP, CurrCWP, CurrCS, CurrCR, CurrMemCntr, call, rtrn, ackIN, Win, R1in, R2in, logWaddr, logR1addr, logR2addr)
+		variable CWPplusLogWAddrMSB, CWPplusLogR1AddrMSB, CWPplusLogR2AddrMSB: std_logic_vector(CurrCWP'length downto 0);				-- support variables used to compute the physical address in case of window register access
+		variable FplusLogWaddrMSB, FplusLogR1addrMSB, FplusLogR2AddrMSB: std_logic_vector(CurrCWP'length downto 0); 	-- support variables used to compute the physical address in case of global register access
 	begin
 		NextState <= CurrState; 	-- default behaviour
 		NextCWP <= CurrCWP;
@@ -57,21 +60,42 @@ begin
 		ready <= '0';
 		spill <= '0'; 	fill <= '0';	ackOut <= '0';
 		WtoRF <= '0';	R1toRF <= '0';	R2toRF <= '0';
-		if (logWaddr(logWaddr'high) = '1') then												-- logical address points to a global register
-			phyWaddr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length - 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum F and logWaddr'MSB, then concatenate to the rest of the logical address
-		else 																				-- logical address points to a window register
-			phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length - 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum CWP and logWaddr'MSB, then concatenate to the rest of the logical address
+		CWPplusLogWAddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logWaddr(logWaddr'high-1)));
+		CWPplusLogR1AddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logR1addr(logR1addr'high-1)));
+		CWPplusLogR1AddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logR2addr(logR2addr'high-1)));
+		FplusLogWaddrMSB := std_logic_vector(to_unsigned(F, FplusLogWaddrMSB'length) + unsigned(zeros & logWaddr(logWaddr'high-1)));
+		FplusLogR1addrMSB := std_logic_vector(to_unsigned(F, FplusLogWaddrMSB'length) + unsigned(zeros & logR1addr(logR1addr'high-1)));
+		FplusLogR2addrMSB := std_logic_vector(to_unsigned(F, FplusLogWaddrMSB'length) + unsigned(zeros & logR2addr(logR2addr'high-1)));
+		-- if (logWaddr(logWaddr'high) = '1') then												-- logical address points to a global register
+			-- phyWaddr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length + 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum F and logWaddr'MSB, then concatenate to the rest of the logical address
+		-- else 																				-- logical address points to a window register
+			-- phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length + 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum CWP and logWaddr'MSB, then concatenate to the rest of the logical address
+		-- end if;
+		-- if (logR1addr(logR1addr'high) = '1') then 											-- same for the other address signals
+			-- phyR1addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logR1addr(logR1addr'high-1))), phyR1addr'length - logR1addr'length + 1)) & logR1addr(logR1addr'high-2 downto 0);
+		-- else
+			-- phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logR1addr(logR1addr'high-1))), phyR1addr'length - logR1addr'length + 1)) & logR1addr(logR1addr'high-2 downto 0);
+		-- end if;
+		-- if (logR2addr(logR2addr'high) = '1') then
+			-- phyR2addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logR2addr(logR2addr'high-1))), phyR2addr'length - logR2addr'length + 1)) & logR2addr(logR2addr'high-2 downto 0);
+		-- else
+			-- phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logR2addr(logR2addr'high-1))), phyR2addr'length - logR2addr'length + 1)) & logR2addr(logR2addr'high-2 downto 0);
+		-- end if; 	
+		if (logWaddr(logWaddr'high) = '1') then													-- logical address points to a global register
+			phyWaddr <= FplusLogWaddrMSB(phyWaddr'length - logWaddr'length + 1 downto 0) & logWaddr(logWaddr'high-2 downto 0); -- sum F and logWaddr'MSB, then concatenate to the rest of the logical address
+		elsif (logWaddr(logWaddr'high) = '0') then												-- logical address points to a window register
+			phyWaddr <= CWPplusLogWAddrMSB(phyWaddr'length - logWaddr'length + 1 downto 0) & logWaddr(logWaddr'high-2 downto 0); -- sum CWP and logWaddr'MSB, then concatenate to the rest of the logical address
 		end if;
-		if (logR1addr(logR1addr'high) = '1') then 											-- same for the other address signals
-			phyR1addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logR1addr(logR1addr'high-1))), phyR1addr'length - logR1addr'length - 1)) & logR1addr(logR1addr'high-2 downto 0);
-		else
-			phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logR1addr(logR1addr'high-1))), phyR1addr'length - logR1addr'length - 1)) & logR1addr(logR1addr'high-2 downto 0);
+		if (logR1addr(logR1addr'high) = '1') then
+			phyR1addr <= FplusLogR1addrMSB(phyR1addr'length - logR1addr'length + 1 downto 0) & logR1addr(logR1addr'high-2 downto 0);
+		elsif (logR1addr(logR1addr'high) = '0') then
+			phyR1addr <= CWPplusLogR1AddrMSB(phyR1addr'length - logR1addr'length + 1 downto 0) & logR1addr(logR1addr'high-2 downto 0); 
 		end if;
 		if (logR2addr(logR2addr'high) = '1') then
-			phyR2addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logR2addr(logR2addr'high-1))), phyR2addr'length - logR2addr'length - 1)) & logR2addr(logR2addr'high-2 downto 0);
-		else
-			phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logR2addr(logR2addr'high-1))), phyR2addr'length - logR2addr'length - 1)) & logR2addr(logR2addr'high-2 downto 0);
-		end if; 
+			phyR2addr <= FplusLogR2addrMSB(phyR2addr'length - logR2addr'length + 1 downto 0) & logR2addr(logR2addr'high-2 downto 0);
+		elsif (logR2addr(logR2addr'high) = '0') then
+			phyR2addr <= CWPplusLogR2AddrMSB(phyR2addr'length - logR2addr'length + 1 downto 0) & logR2addr(logR2addr'high-2 downto 0); 
+		end if;
 		case CurrState is
 			when Reset	 		=>
 				ready <= '1';

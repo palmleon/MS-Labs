@@ -56,13 +56,13 @@ architecture test of tb_RMLwithRF is
 	constant NBlockRegs : integer := 4;
 	constant NWindows : integer := 5;
 	constant NData : integer := 8;
-	constant memAddr : integer := integer(ceil(log2(real(NblockRegs))));
+	constant memAddr : integer := integer(ceil(log2(real(2*NblockRegs))));
 	constant ClkPeriod : time := 10 ns;
 	signal rst_s, clk_s, call_s, rtrn_s, ackIN_s, ackOUT_s, W_s, RD1_s, RD2_s, en_s, enfake_s, spill_s, fill_s, ready_s: std_logic;
 	signal logWaddr_s, logR1addr_s, logR2addr_s: std_logic_vector(4 downto 0);
 	signal memR, memW : std_logic;
-	signal memRaddr, memWaddr : std_logic_vector(memAddr downto 0);
-	constant memR2addr: std_logic_vector(memAddr downto 0) := (others => '0');		-- actually, the fake memory has only one read channel
+	signal memRaddr, memWaddr : std_logic_vector(memAddr-1 downto 0);
+	constant memR2addr: std_logic_vector(memAddr-1 downto 0) := (others => '0');	-- actually, the fake memory has only one read channel
 	signal memIN, memOUT, memOUT2 : std_logic_vector(NData-1 downto 0);				-- memOUT2 actually not used
 	signal DATAIN_s, RD1out_s, RD2Out_s: std_logic_vector(Ndata-1 downto 0);
 begin
@@ -231,7 +231,7 @@ begin
 		assert spill_s = '1' and fill_s = '0' report "Error on Test " & integer'image(i) & ": SPILL should occur (no FILL)";	
 		i := i + 1;
 		call_s <= '0'; ackIN_s <= '1';
-		wait until RD1out_s'event;
+		wait for ClkPeriod;
 		ackIN_s <= '0';
 			--save into memory
 		for i in 0 to 2*NBlockRegs-1 loop

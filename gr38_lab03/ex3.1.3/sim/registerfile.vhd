@@ -30,8 +30,8 @@ end register_file;
 architecture A of register_file is
 
         -- suggested structures
-        subtype REG_ADDR is natural range 0 to 31; -- using natural type
-        type REG_ARRAY is array(REG_ADDR) of std_logic_vector(63 downto 0);
+        subtype REG_ADDR is natural range 0 to NRegs-1; -- using natural type
+        type REG_ARRAY is array(REG_ADDR) of std_logic_vector(NData-1 downto 0);
         signal REGISTERS : REG_ARRAY;
 
 begin
