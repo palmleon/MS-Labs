@@ -17,8 +17,8 @@ entity RML is
 		logWaddr, logR1addr, logR2addr: in std_logic_vector(integer(log2(real(N)))+2 downto 0);		-- the MSB tells whether we want to access a global register or a window register, the other bits are required to point up to 4N-1 locations
 		phyWaddr, phyR1addr, phyR2addr: out std_logic_vector(integer(ceil(log2(real(2*N*F+M))))-1 downto 0);
 		WtoRF, R1toRF, R2toRF:	out	std_logic;			-- during a SPILL/FILL, the RML must write/read to/from Memory, so it needs to control the signals that enable a read or a write in those cases	
-		spill, fill:			out	std_logic;				-- SPILL/FILL are used to inform both the CU and the MMU when SPILL/FILL occurs
-		spillend, fillend:		out std_logic			-- notify the CU when SPILL/FILL has terminated
+		spill, fill:			out	std_logic;			-- SPILL/FILL are used to inform both the CU and the MMU when SPILL/FILL occurs
+		ready:					out std_logic			-- notify the CU that the RegFile is available from the next clk.cycle
 	);  
 end RML;
 
@@ -53,8 +53,8 @@ begin
 		NextCS <= CurrCS;
 		NextCR <= CurrCR;
 		NextMemCntr <= CurrMemCntr;
-		spill <= '0'; 	spillend <= '0';
-		fill <= '0';	fillend <= '0';
+		ready <= '0';
+		spill <= '0'; 	fill <= '0';	
 		WtoRF <= '0';	R1toRF <= '0';	R2toRF <= '0';
 		if (logWaddr(logWaddr'high) = '1') then												-- logical address points to a global register
 			phyWaddr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length - 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum F and logWaddr'MSB, then concatenate to the rest of the logical address
@@ -93,6 +93,7 @@ begin
 			when Call_NoSpill	=>
 				NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) - 1, NextCS'length);		-- after a CALL, n. free windows has decremented
+				ready <= '1';
 				NextState <= Idle;
 			when Call_Spill1	=>
 				spill <= '1';
@@ -106,20 +107,21 @@ begin
 			when Call_Spill2	=>													-- state where a window is sent to Memory
 				NextMemCntr <= to_unsigned(to_integer(CurrMemCntr) + 1, NextMemCntr'length);			
 				WtoRF <= '0';	R1toRF <= '1';	R2toRF <= '0';						-- the RML knows nothing about the DataBus, it only expects to read data to send to Memory
-				phyR1addr <= std_logic_vector(CurrSWP & CurrMemCntr);					-- a window is 2N reg wide: the window number and the offset can be concatenated to obtain the physical address to access to
+				phyR1addr <= std_logic_vector(CurrSWP & CurrMemCntr);				-- a window is 2N reg wide: the window number and the offset can be concatenated to obtain the physical address to access to
 				if (to_integer(CurrMemCntr) = 2*N-1) then							-- terminating condition: 2N regs have been sent
 					NextState <= Call_Spill3;
 				elsif (to_integer(CurrMemCntr) /= 2*N-1) then
 					NextState <= CurrState;
 				end if;
 			when Call_Spill3	=>
-				spillend <= '1';													-- notifies the CU so that it can resume instruction execution
+				ready <= '1';															-- notifies the CU so that it can resume instruction execution
 				NextSWP <= to_unsigned((to_integer(CurrSWP) + 1) mod F, NextSWP'length);	-- finally, SWP and CWP are updated accordingly
 				NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);	-- CS is not updated since spill frees a window and re-occupies it at the same time								
 				NextState <= Idle;
 			when Rtrn_NoFill	=>
 				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) + 1, NextCS'length);	-- after RETURN, one window has become available
+				ready <= '1';
 				NextState <= Idle;
 			when Rtrn_Fill1		=>
 				fill <= '1';
@@ -142,8 +144,8 @@ begin
 					NextState <= CurrState;
 				end if;
 			when Rtrn_Fill4		=>
-				fillend <= '1';
-				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);
+				ready <= '1';													-- inform the CU that FILL has terminated and so that instruction execution resumes
+				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);	-- update CWP
 				NextState <= Idle;
 		end case;
 	end process;
