@@ -38,12 +38,14 @@ begin
 			CurrCWP <= (others => '0');
 			CurrCS <= (others => '0');
 			CurrCR <= (others => '0');
+			CurrMemCntr <= (others => '0');
 		elsif (rst = '0') then
 			CurrState <= NextState;
 			CurrSWP <= NextSWP;
 			CurrCWP <= NextCWP;
 			CurrCS <= NextCS;
 			CurrCR <= NextCR;
+			CurrMemCntr <= NextMemCntr;
 		end if;
 	end process;
 
@@ -60,9 +62,22 @@ begin
 		ready <= '0';
 		spill <= '0'; 	fill <= '0';	ackOut <= '0';
 		WtoRF <= '0';	R1toRF <= '0';	R2toRF <= '0';
-		CWPplusLogWAddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logWaddr(logWaddr'high-1)));
-		CWPplusLogR1AddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logR1addr(logR1addr'high-1)));
-		CWPplusLogR1AddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logR2addr(logR2addr'high-1)));
+		if CurrCWP = to_unsigned(F-1, CurrCWP'length) and logWaddr(logWaddr'high-1) = '1' then 					-- CWP modulo F is computed manually
+			CWPplusLogWAddrMSB := std_logic_vector(to_unsigned(0, CWPplusLogWAddrMSB'length));
+		elsif CurrCWP /= to_unsigned(F-1, CurrCWP'length) or logWaddr(logWaddr'high-1) = '0' then
+			CWPplusLogWAddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logWaddr(logWaddr'high-1)));
+		end if;
+		if CurrCWP = to_unsigned(F-1, CurrCWP'length) and logR2addr(logR1addr'high-1) = '1' then 					-- CWP modulo F is computed manually
+			CWPplusLogR1AddrMSB := std_logic_vector(to_unsigned(0, CWPplusLogR1AddrMSB'length));
+		elsif CurrCWP /= to_unsigned(F-1, CurrCWP'length) or logR1addr(logR1addr'high-1) = '0' then
+			CWPplusLogR1AddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logR1addr(logR1addr'high-1)));
+		end if;
+		if CurrCWP = to_unsigned(F-1, CurrCWP'length) and logR2addr(logR2addr'high-1) = '1' then 					-- CWP modulo F is computed manually
+			CWPplusLogR2AddrMSB := std_logic_vector(to_unsigned(0, CWPplusLogR2AddrMSB'length));
+		elsif CurrCWP /= to_unsigned(F-1, CurrCWP'length) or logR2addr(logR2addr'high-1) = '0' then
+			CWPplusLogR2AddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logR2addr(logR2addr'high-1)));
+		end if;
+		-- TODO implement modulo F for R1 and R2
 		FplusLogWaddrMSB := std_logic_vector(to_unsigned(F, FplusLogWaddrMSB'length) + unsigned(zeros & logWaddr(logWaddr'high-1)));
 		FplusLogR1addrMSB := std_logic_vector(to_unsigned(F, FplusLogWaddrMSB'length) + unsigned(zeros & logR1addr(logR1addr'high-1)));
 		FplusLogR2addrMSB := std_logic_vector(to_unsigned(F, FplusLogWaddrMSB'length) + unsigned(zeros & logR2addr(logR2addr'high-1)));
@@ -99,10 +114,13 @@ begin
 		case CurrState is
 			when Reset	 		=>
 				ready <= '1';
+				WtoRF <= Win; 														-- in this state, W/R signals are passed through (transparent RML)
+				R1toRF <= R1in;
+				R2toRF <= R2in;
 				NextCS <= to_unsigned(F-1, CurrCS'length);
-				if (call = '1' and rtrn = '0' and to_integer(CurrCS) /= 0) then		-- after reset, only a CALL is accepted; possible RETURNs would not modify the window (FATAL ERROR, but SW-related)
+				if (call = '1' and rtrn = '0' and CurrCS /= to_unsigned(0, CurrCS'length)) then		-- after reset, only a CALL is accepted; possible RETURNs would not modify the window (FATAL ERROR, but SW-related)
 					NextState <= Call_NoSpill;
-				elsif (call = '1' and rtrn = '0' and to_integer(CurrCS) = 0) then
+				elsif (call = '1' and rtrn = '0' and CurrCS = to_unsigned(0, CurrCS'length)) then
 					NextState <= Call_Spill1;
 				end if;
 			when Idle	 		=>	
@@ -110,13 +128,13 @@ begin
 				WtoRF <= Win; 														-- in this state, W/R signals are passed through (transparent RML)
 				R1toRF <= R1in;
 				R2toRF <= R2in;
-				if (call = '1' and rtrn = '0' and to_integer(CurrCS) /= 0) then
+				if (call = '1' and rtrn = '0' and CurrCS /= to_unsigned(0, CurrCS'length)) then
 					NextState <= Call_NoSpill;
-				elsif (call = '1' and rtrn = '0' and to_integer(CurrCS) = 0) then
+				elsif (call = '1' and rtrn = '0' and CurrCS = to_unsigned(0, CurrCS'length)) then
 					NextState <= Call_Spill1;
-				elsif (call = '0' and rtrn = '1' and to_integer(CurrCR) /= 0) then
+				elsif (call = '0' and rtrn = '1' and CurrCS /= to_unsigned(0, CurrCS'length)) then
 					NextState <= Rtrn_NoFill;
-				elsif (call = '0' and rtrn = '1' and to_integer(CurrCR) = 0) then
+				elsif (call = '0' and rtrn = '1' and CurrCS = to_unsigned(0, CurrCS'length)) then
 					NextState <= Rtrn_Fill1;
 				end if;
 			when Call_NoSpill	=>
@@ -126,12 +144,11 @@ begin
 			when Call_Spill1	=>
 				spill <= '1';
 				NextMemCntr <= (others => '0');										-- init window offset register 
-				if (ack = '0') then													-- after a SPILL, we wait for an ack signal from the MMU before sending data to Memory
+				if (ackIN = '0') then													-- after a SPILL, we wait for an ack signal from the MMU before sending data to Memory
 					NextState <= CurrState;
-				elsif (ack = '1') then
+				elsif (ackIN = '1') then
 					NextState <= Call_Spill2;
 				end if;
-				NextState <= Call_Spill2;	
 			when Call_Spill2	=>													-- state where a window is sent to Memory
 				NextMemCntr <= to_unsigned(to_integer(CurrMemCntr) + 1, NextMemCntr'length);			
 				WtoRF <= '0';	R1toRF <= '1';	R2toRF <= '0';						-- the RML knows nothing about the DataBus, it only expects to read data to send to Memory
@@ -151,9 +168,9 @@ begin
 				NextState <= Idle;
 			when Rtrn_Fill1		=>
 				fill <= '1';
-				if (ack = '1') then												-- after a FILL, we wait for an ack signal from the MMU before reading incoming data from Memory 
+				if (ackIN = '1') then												-- after a FILL, we wait for an ack signal from the MMU before reading incoming data from Memory 
 					NextState <= Rtrn_Fill2;
-				elsif (ack = '0') then
+				elsif (ackIN = '0') then
 					NextState <= CurrState;
 				end if;
 			when Rtrn_Fill2		=>

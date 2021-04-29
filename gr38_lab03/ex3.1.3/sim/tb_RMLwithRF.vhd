@@ -73,7 +73,7 @@ begin
 							  logWaddr=>logWaddr_s, logR1addr=>logR1addr_s, logR2addr=>logR2addr_s,
 							  DATAIN=>DATAIN_s, RD1out=>RD1out_s, RD2out=>RD2out_s);	
 	
-	fakeMemory: register_file generic map (NData=>NData, NRegs=>NBlockRegs, NAddr=>memAddr)
+	fakeMemory: register_file generic map (NData=>NData, NRegs=>2*NBlockRegs, NAddr=>memAddr)
 							port map (CLK=>clk_s, RESET=>rst_S, ENABLE=>enfake_s,
 									  RD1=>memR, RD2=>'0', WR=>memW, ADD_WR=>memWaddr,
 									  ADD_RD1=>memRaddr, ADD_RD2 => memR2addr, DATAIN=>memIN, OUT1=>memOUT, OUT2=>memOUT2);
@@ -193,11 +193,11 @@ begin
 		DATAIN_s <= "11001100";
 		wait for ClkPeriod;
 
-		--read from first global reg (check if global regs are effectively in common among all subroutines)
+		--read from global reg written before (check if global regs are effectively in common among all subroutines)
 		en_s <= '1';
 		W_s <= '0'; RD1_s <= '1'; RD2_s <= '0';	
 		logR1addr_s(4) <= '1'; 
-		logR1addr_s(3 downto 0) <= "0000";
+		logR1addr_s(3 downto 0) <= "0100";
 		wait for ClkPeriod;
 		assert RD1out_s = "01010101" report "Error on Test " & integer'image(i) & ": expected output is 10101110";
 		i := i + 1;
@@ -238,8 +238,9 @@ begin
 			memW <= '1';
 			memWaddr <= std_logic_vector(to_unsigned(i, memWaddr'length));
 			memIN <= RD1out_s;
-			wait until RD1out_s'event;
+			wait for ClkPeriod;
 		end loop;
+		memW <= '0';
 		wait until ready_s = '1';		
 
 		--read first IN, previous OUT register
@@ -312,6 +313,7 @@ begin
 			DATAIN_s <= memOUT;
 			wait for ClkPeriod;
 		end loop;
+		memR <= '0';
 		wait until ready_s = '1';		
 
 		--check whether the spilt window corresponds to the filled window
