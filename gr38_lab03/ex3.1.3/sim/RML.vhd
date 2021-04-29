@@ -124,7 +124,12 @@ begin
 					NextState <= Rtrn_Fill1;
 				end if;
 			when Call_NoSpill1	=>
-				NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);
+				if (to_integer(CurrCWP) = F-1) then
+					NextCWP <= to_unsigned(0, NextCWP'length);			-- the base address of the window to restore is initialized
+				else
+					NextCWP <= to_unsigned(to_integer(CurrCWP) + 1, NextCWP'length);
+				end if;
+				--NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) - 1, NextCS'length);		-- after a CALL, n. free windows has decremented
 				NextState <= Call_NoSpill2;
 			when Call_NoSpill2	=>
@@ -147,13 +152,28 @@ begin
 					NextState <= CurrState;
 				end if;
 			when Call_Spill3	=>
-				NextSWP <= to_unsigned((to_integer(CurrSWP) + 1) mod F, NextSWP'length);	-- finally, SWP and CWP are updated accordingly
-				NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);	-- CS is not updated since spill frees a window and re-occupies it at the same time								
+				if (to_integer(CurrSWP) = F - 1) then
+					NextSWP <= to_unsigned(0, NextSWP'length);			-- the base address of the window to restore is initialized
+				else
+					NextSWP <= to_unsigned(to_integer(CurrSWP) + 1, NextSWP'length);
+				end if;
+				if (to_integer(CurrCWP) = F - 1) then
+					NextCWP <= to_unsigned(0, NextCWP'length);			-- the base address of the window to restore is initialized
+				else
+					NextCWP <= to_unsigned(to_integer(CurrCWP) + 1, NextCWP'length);
+				end if;
+				--NextSWP <= to_unsigned((to_integer(CurrSWP) + 1) mod F, NextSWP'length);	-- finally, SWP and CWP are updated accordingly
+				--NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);	-- CS is not updated since spill frees a window and re-occupies it at the same time								
 				NextState <= Call_Spill4;
 			when Call_Spill4	=>															-- state necessary to update CANRESTORE before re-entering in the Idle State
 				NextState <= Idle;
 			when Rtrn_NoFill1	=>
-				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);
+				if (to_integer(CurrCWP) = 0) then
+					NextCWP <= to_unsigned(F - 1, NextCWP'length);			-- the base address of the window to restore is initialized
+				else
+					NextCWP <= to_unsigned(to_integer(CurrCWP) - 1, NextCWP'length);
+				end if;
+				--NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) + 1, NextCS'length);	-- after RETURN, one window has become available
 				NextState <= Rtrn_NoFill2;
 			when Rtrn_NoFill2	=>
@@ -167,8 +187,18 @@ begin
 				end if;
 			when Rtrn_Fill2		=>
 				ackOut <= '1';													-- inform the Memory that it is possible to receive a window
-				NextSWP <= to_unsigned((to_integer(CurrSWP) - 1) mod F, NextSWP'length);			-- the base address of the window to restore is initialized
-				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);	-- update CWP
+				if (to_integer(CurrSWP) = 0) then
+					NextSWP <= to_unsigned(F - 1, NextSWP'length);			-- the base address of the window to restore is initialized
+				else
+					NextSWP <= to_unsigned(to_integer(CurrSWP) - 1, NextSWP'length);
+				end if;
+				if (to_integer(CurrCWP) = 0) then
+					NextCWP <= to_unsigned(F - 1, NextCWP'length);			-- the base address of the window to restore is initialized
+				else
+					NextCWP <= to_unsigned(to_integer(CurrCWP) - 1, NextCWP'length);
+				end if;
+				--NextSWP <= to_unsigned((to_integer(CurrSWP) - 1) mod F, NextSWP'length);	-- update SWP
+				--NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);	-- update CWP
 				NextMemCntr <= to_unsigned(2*N-1, NextMemCntr'length);				-- init window offset register (if Memory behaves like a stack, data is popped out from Memory as in a LIFO)
 				NextState <= Rtrn_Fill3;
 			when Rtrn_Fill3		=>												-- state where a window is read from Memory
