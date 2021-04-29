@@ -10,14 +10,15 @@ entity RML is
 		F : integer := 5		-- windows
 	);
 	port(
-		call, rtrn:				in	std_logic;			-- from the CU: they notify when context switching should be managed
-		ack:					in 	std_logic; 			-- from Memory		
 		rst, clk:				in	std_logic;
+		call, rtrn:				in	std_logic;			-- from the CU: they notify when context switching should be managed
+		ackIN:					in 	std_logic; 			-- from Memory		
 		Win, R1in, R2in:		in  std_logic;			-- from instructions;		
 		logWaddr, logR1addr, logR2addr: in std_logic_vector(integer(log2(real(N)))+2 downto 0);		-- the MSB tells whether we want to access a global register or a window register, the other bits are required to point up to 4N-1 locations
 		phyWaddr, phyR1addr, phyR2addr: out std_logic_vector(integer(ceil(log2(real(2*N*F+M))))-1 downto 0);
 		WtoRF, R1toRF, R2toRF:	out	std_logic;			-- during a SPILL/FILL, the RML must write/read to/from Memory, so it needs to control the signals that enable a read or a write in those cases	
 		spill, fill:			out	std_logic;			-- SPILL/FILL are used to inform both the CU and the MMU when SPILL/FILL occurs
+		ackOUT:					out std_logic;			-- notify the CU that it is possible to receive a window from Memory
 		ready:					out std_logic			-- notify the CU that the RegFile is available from the next clk.cycle
 	);  
 end RML;
@@ -45,16 +46,16 @@ begin
 		end if;
 	end process;
 
-	CombProc: process(CurrState, CurrSWP, CurrCWP, CurrCS, CurrCR, CurrMemCntr, call, rtrn, ack, Win, R1in, R2in, logWaddr, logR1addr, logR2addr)
+	CombProc: process(CurrState, CurrSWP, CurrCWP, CurrCS, CurrCR, CurrMemCntr, call, rtrn, ackIN, Win, R1in, R2in, logWaddr, logR1addr, logR2addr)
 	begin
 		NextState <= CurrState; 	-- default behaviour
 		NextCWP <= CurrCWP;
 		NextSWP <= CurrSWP;
 		NextCS <= CurrCS;
-		NextCR <= CurrCR;
+		NextCR <= CurrSWP xor CurrCWP;
 		NextMemCntr <= CurrMemCntr;
 		ready <= '0';
-		spill <= '0'; 	fill <= '0';	
+		spill <= '0'; 	fill <= '0';	ackOut <= '0';
 		WtoRF <= '0';	R1toRF <= '0';	R2toRF <= '0';
 		if (logWaddr(logWaddr'high) = '1') then												-- logical address points to a global register
 			phyWaddr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length - 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum F and logWaddr'MSB, then concatenate to the rest of the logical address
@@ -74,9 +75,11 @@ begin
 		case CurrState is
 			when Reset	 		=>
 				ready <= '1';
-				NextCS <= to_unsigned(F, CurrCS'length);
-				if (call = '1' and rtrn = '0') then									-- after reset, only a CALL is accepted; eventual RETURNs would not modify the window (FATAL ERROR, but SW-related)
+				NextCS <= to_unsigned(F-1, CurrCS'length);
+				if (call = '1' and rtrn = '0' and to_integer(CurrCS) /= 0) then		-- after reset, only a CALL is accepted; possible RETURNs would not modify the window (FATAL ERROR, but SW-related)
 					NextState <= Call_NoSpill;
+				elsif (call = '1' and rtrn = '0' and to_integer(CurrCS) = 0) then
+					NextState <= Call_Spill1;
 				end if;
 			when Idle	 		=>	
 				ready <= '1';														-- state where we are within a certain Subroutine (neither CALL nor RETURN)
@@ -130,6 +133,7 @@ begin
 					NextState <= CurrState;
 				end if;
 			when Rtrn_Fill2		=>
+				ackOut <= '1';													-- inform the Memory that it is possible to receive a window
 				NextSWP <= to_unsigned((to_integer(CurrSWP) - 1) mod F, NextSWP'length);			-- the base address of the window to restore is initialized
 				NextMemCntr <= to_unsigned(2*N-1, NextMemCntr'length);				-- init window offset register (if Memory behaves like a stack, data is popped out from Memory as in a LIFO)
 				NextState <= Rtrn_Fill3;
