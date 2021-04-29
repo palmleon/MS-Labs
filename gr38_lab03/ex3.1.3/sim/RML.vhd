@@ -73,11 +73,13 @@ begin
 		end if; 
 		case CurrState is
 			when Reset	 		=>
+				ready <= '1';
 				NextCS <= to_unsigned(F, CurrCS'length);
 				if (call = '1' and rtrn = '0') then									-- after reset, only a CALL is accepted; eventual RETURNs would not modify the window (FATAL ERROR, but SW-related)
 					NextState <= Call_NoSpill;
 				end if;
-			when Idle	 		=>													-- state where we are within a certain Subroutine (neither CALL nor RETURN)
+			when Idle	 		=>	
+				ready <= '1';														-- state where we are within a certain Subroutine (neither CALL nor RETURN)
 				WtoRF <= Win; 														-- in this state, W/R signals are passed through (transparent RML)
 				R1toRF <= R1in;
 				R2toRF <= R2in;
@@ -93,7 +95,6 @@ begin
 			when Call_NoSpill	=>
 				NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) - 1, NextCS'length);		-- after a CALL, n. free windows has decremented
-				ready <= '1';
 				NextState <= Idle;
 			when Call_Spill1	=>
 				spill <= '1';
@@ -114,14 +115,12 @@ begin
 					NextState <= CurrState;
 				end if;
 			when Call_Spill3	=>
-				ready <= '1';															-- notifies the CU so that it can resume instruction execution
 				NextSWP <= to_unsigned((to_integer(CurrSWP) + 1) mod F, NextSWP'length);	-- finally, SWP and CWP are updated accordingly
 				NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);	-- CS is not updated since spill frees a window and re-occupies it at the same time								
 				NextState <= Idle;
 			when Rtrn_NoFill	=>
 				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) + 1, NextCS'length);	-- after RETURN, one window has become available
-				ready <= '1';
 				NextState <= Idle;
 			when Rtrn_Fill1		=>
 				fill <= '1';
@@ -144,7 +143,6 @@ begin
 					NextState <= CurrState;
 				end if;
 			when Rtrn_Fill4		=>
-				ready <= '1';													-- inform the CU that FILL has terminated and so that instruction execution resumes
 				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);	-- update CWP
 				NextState <= Idle;
 		end case;
