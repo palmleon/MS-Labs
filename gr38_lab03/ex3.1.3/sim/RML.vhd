@@ -24,7 +24,7 @@ entity RML is
 end RML;
 
 architecture HLSM of RML is
-	type StateType is (Reset, Idle, Rtrn_NoFill, Rtrn_Fill1, Rtrn_Fill2, Rtrn_Fill3, Rtrn_Fill4, Call_NoSpill, Call_Spill1, Call_Spill2, Call_Spill3);
+	type StateType is (Reset, Idle, Rtrn_NoFill1, Rtrn_NoFill2, Rtrn_Fill1, Rtrn_Fill2, Rtrn_Fill3, Call_NoSpill1, Call_NoSpill2, Call_Spill1, Call_Spill2, Call_Spill3, Call_Spill4);
 	signal CurrState, NextState: StateType;
 	signal CurrSWP, NextSWP, CurrCWP, NextCWP, CurrCS, NextCS, CurrCR, NextCR: unsigned(integer(ceil(log2(real(F))))-1 downto 0); 	-- CS stands for CANSAVE, CR stands for CANRESTORE
 	signal CurrMemCntr, NextMemCntr: unsigned(integer(real(log2(real(N)))) downto 0); -- used to access the window, one reg per time, during a SPILL/FILL (base address of the window = SWP)
@@ -32,20 +32,22 @@ architecture HLSM of RML is
 begin
 	SynchProc: process(clk)
 	begin
-		if (rst = '1') then
-			CurrState <= Reset;
-			CurrSWP <= (others => '0');
-			CurrCWP <= (others => '0');
-			CurrCS <= (others => '0');
-			CurrCR <= (others => '0');
-			CurrMemCntr <= (others => '0');
-		elsif (rst = '0') then
-			CurrState <= NextState;
-			CurrSWP <= NextSWP;
-			CurrCWP <= NextCWP;
-			CurrCS <= NextCS;
-			CurrCR <= NextCR;
-			CurrMemCntr <= NextMemCntr;
+		if (rising_edge(clk)) then
+			if (rst = '1') then
+				CurrState <= Reset;
+				CurrSWP <= (others => '0');
+				CurrCWP <= (others => '0');
+				CurrCS <= (others => '0');
+				CurrCR <= (others => '0');
+				CurrMemCntr <= (others => '0');
+			elsif (rst = '0') then
+				CurrState <= NextState;
+				CurrSWP <= NextSWP;
+				CurrCWP <= NextCWP;
+				CurrCS <= NextCS;
+				CurrCR <= NextCR;
+				CurrMemCntr <= NextMemCntr;
+			end if;
 		end if;
 	end process;
 
@@ -67,7 +69,7 @@ begin
 		elsif CurrCWP /= to_unsigned(F-1, CurrCWP'length) or logWaddr(logWaddr'high-1) = '0' then
 			CWPplusLogWAddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logWaddr(logWaddr'high-1)));
 		end if;
-		if CurrCWP = to_unsigned(F-1, CurrCWP'length) and logR2addr(logR1addr'high-1) = '1' then 					-- CWP modulo F is computed manually
+		if CurrCWP = to_unsigned(F-1, CurrCWP'length) and logR1addr(logR1addr'high-1) = '1' then 					-- CWP modulo F is computed manually
 			CWPplusLogR1AddrMSB := std_logic_vector(to_unsigned(0, CWPplusLogR1AddrMSB'length));
 		elsif CurrCWP /= to_unsigned(F-1, CurrCWP'length) or logR1addr(logR1addr'high-1) = '0' then
 			CWPplusLogR1AddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logR1addr(logR1addr'high-1)));
@@ -77,25 +79,9 @@ begin
 		elsif CurrCWP /= to_unsigned(F-1, CurrCWP'length) or logR2addr(logR2addr'high-1) = '0' then
 			CWPplusLogR2AddrMSB := std_logic_vector(('0' & CurrCWP) + unsigned(zeros & logR2addr(logR2addr'high-1)));
 		end if;
-		-- TODO implement modulo F for R1 and R2
 		FplusLogWaddrMSB := std_logic_vector(to_unsigned(F, FplusLogWaddrMSB'length) + unsigned(zeros & logWaddr(logWaddr'high-1)));
 		FplusLogR1addrMSB := std_logic_vector(to_unsigned(F, FplusLogWaddrMSB'length) + unsigned(zeros & logR1addr(logR1addr'high-1)));
 		FplusLogR2addrMSB := std_logic_vector(to_unsigned(F, FplusLogWaddrMSB'length) + unsigned(zeros & logR2addr(logR2addr'high-1)));
-		-- if (logWaddr(logWaddr'high) = '1') then												-- logical address points to a global register
-			-- phyWaddr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length + 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum F and logWaddr'MSB, then concatenate to the rest of the logical address
-		-- else 																				-- logical address points to a window register
-			-- phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logWaddr(logWaddr'high-1))), phyWaddr'length - logWaddr'length + 1)) & logWaddr(logWaddr'high-2 downto 0); -- sum CWP and logWaddr'MSB, then concatenate to the rest of the logical address
-		-- end if;
-		-- if (logR1addr(logR1addr'high) = '1') then 											-- same for the other address signals
-			-- phyR1addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logR1addr(logR1addr'high-1))), phyR1addr'length - logR1addr'length + 1)) & logR1addr(logR1addr'high-2 downto 0);
-		-- else
-			-- phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logR1addr(logR1addr'high-1))), phyR1addr'length - logR1addr'length + 1)) & logR1addr(logR1addr'high-2 downto 0);
-		-- end if;
-		-- if (logR2addr(logR2addr'high) = '1') then
-			-- phyR2addr	<= std_logic_vector(to_unsigned(F + to_integer(unsigned'("" & logR2addr(logR2addr'high-1))), phyR2addr'length - logR2addr'length + 1)) & logR2addr(logR2addr'high-2 downto 0);
-		-- else
-			-- phyWaddr	<= std_logic_vector(to_unsigned(to_integer(CurrCWP) + to_integer(unsigned'("" & logR2addr(logR2addr'high-1))), phyR2addr'length - logR2addr'length + 1)) & logR2addr(logR2addr'high-2 downto 0);
-		-- end if; 	
 		if (logWaddr(logWaddr'high) = '1') then													-- logical address points to a global register
 			phyWaddr <= FplusLogWaddrMSB(phyWaddr'length - logWaddr'length + 1 downto 0) & logWaddr(logWaddr'high-2 downto 0); -- sum F and logWaddr'MSB, then concatenate to the rest of the logical address
 		elsif (logWaddr(logWaddr'high) = '0') then												-- logical address points to a window register
@@ -119,7 +105,7 @@ begin
 				R2toRF <= R2in;
 				NextCS <= to_unsigned(F-1, CurrCS'length);
 				if (call = '1' and rtrn = '0' and CurrCS /= to_unsigned(0, CurrCS'length)) then		-- after reset, only a CALL is accepted; possible RETURNs would not modify the window (FATAL ERROR, but SW-related)
-					NextState <= Call_NoSpill;
+					NextState <= Call_NoSpill1;
 				elsif (call = '1' and rtrn = '0' and CurrCS = to_unsigned(0, CurrCS'length)) then
 					NextState <= Call_Spill1;
 				end if;
@@ -129,17 +115,19 @@ begin
 				R1toRF <= R1in;
 				R2toRF <= R2in;
 				if (call = '1' and rtrn = '0' and CurrCS /= to_unsigned(0, CurrCS'length)) then
-					NextState <= Call_NoSpill;
+					NextState <= Call_NoSpill1;
 				elsif (call = '1' and rtrn = '0' and CurrCS = to_unsigned(0, CurrCS'length)) then
 					NextState <= Call_Spill1;
-				elsif (call = '0' and rtrn = '1' and CurrCS /= to_unsigned(0, CurrCS'length)) then
-					NextState <= Rtrn_NoFill;
-				elsif (call = '0' and rtrn = '1' and CurrCS = to_unsigned(0, CurrCS'length)) then
+				elsif (call = '0' and rtrn = '1' and CurrCR /= to_unsigned(0, CurrCR'length)) then
+					NextState <= Rtrn_NoFill1;
+				elsif (call = '0' and rtrn = '1' and CurrCR = to_unsigned(0, CurrCR'length)) then
 					NextState <= Rtrn_Fill1;
 				end if;
-			when Call_NoSpill	=>
+			when Call_NoSpill1	=>
 				NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) - 1, NextCS'length);		-- after a CALL, n. free windows has decremented
+				NextState <= Call_NoSpill2;
+			when Call_NoSpill2	=>
 				NextState <= Idle;
 			when Call_Spill1	=>
 				spill <= '1';
@@ -150,7 +138,7 @@ begin
 					NextState <= Call_Spill2;
 				end if;
 			when Call_Spill2	=>													-- state where a window is sent to Memory
-				NextMemCntr <= to_unsigned(to_integer(CurrMemCntr) + 1, NextMemCntr'length);			
+				NextMemCntr <= CurrMemCntr + to_unsigned(1, NextMemCntr'length);			
 				WtoRF <= '0';	R1toRF <= '1';	R2toRF <= '0';						-- the RML knows nothing about the DataBus, it only expects to read data to send to Memory
 				phyR1addr <= std_logic_vector(CurrSWP & CurrMemCntr);				-- a window is 2N reg wide: the window number and the offset can be concatenated to obtain the physical address to access to
 				if (to_integer(CurrMemCntr) = 2*N-1) then							-- terminating condition: 2N regs have been sent
@@ -161,10 +149,14 @@ begin
 			when Call_Spill3	=>
 				NextSWP <= to_unsigned((to_integer(CurrSWP) + 1) mod F, NextSWP'length);	-- finally, SWP and CWP are updated accordingly
 				NextCWP <= to_unsigned((to_integer(CurrCWP) + 1) mod F, NextCWP'length);	-- CS is not updated since spill frees a window and re-occupies it at the same time								
+				NextState <= Call_Spill4;
+			when Call_Spill4	=>															-- state necessary to update CANRESTORE before re-entering in the Idle State
 				NextState <= Idle;
-			when Rtrn_NoFill	=>
+			when Rtrn_NoFill1	=>
 				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);
 				NextCS <= to_unsigned(to_integer(CurrCS) + 1, NextCS'length);	-- after RETURN, one window has become available
+				NextState <= Rtrn_NoFill2;
+			when Rtrn_NoFill2	=>
 				NextState <= Idle;
 			when Rtrn_Fill1		=>
 				fill <= '1';
@@ -176,20 +168,19 @@ begin
 			when Rtrn_Fill2		=>
 				ackOut <= '1';													-- inform the Memory that it is possible to receive a window
 				NextSWP <= to_unsigned((to_integer(CurrSWP) - 1) mod F, NextSWP'length);			-- the base address of the window to restore is initialized
+				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);	-- update CWP
 				NextMemCntr <= to_unsigned(2*N-1, NextMemCntr'length);				-- init window offset register (if Memory behaves like a stack, data is popped out from Memory as in a LIFO)
 				NextState <= Rtrn_Fill3;
 			when Rtrn_Fill3		=>												-- state where a window is read from Memory
-				NextMemCntr <= to_unsigned(to_integer(CurrMemCntr) - 1, NextMemCntr'length);
+				NextMemCntr <= CurrMemCntr - to_unsigned(1, NextMemCntr'length);
 				WtoRF <= '1';	R1toRF <= '0';	R2toRF <= '0';					-- the RML knows nothing about the DataBus, it only expects to receive data to store in the RegFile
 				phyWaddr <= std_logic_vector(CurrSWP & CurrMemCntr);				-- a window is 2N reg wide: the window number and the offset can be concatenated to obtain the physical address to access to
 				if (to_integer(CurrMemCntr) = 0) then							-- terminating condition: 2N regs have been stored in the RegFile
-					NextState <= Rtrn_Fill4;
+					--NextState <= Rtrn_Fill4;
+					NextState <= Idle;
 				elsif (to_integer(CurrMemCntr) /= 0) then
 					NextState <= CurrState;
 				end if;
-			when Rtrn_Fill4		=>
-				NextCWP <= to_unsigned((to_integer(CurrCWP) - 1) mod F, NextCWP'length);	-- update CWP
-				NextState <= Idle;
 		end case;
 	end process;
 end HLSM;

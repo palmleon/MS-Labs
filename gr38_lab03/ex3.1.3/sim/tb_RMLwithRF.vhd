@@ -145,8 +145,9 @@ begin
 		W_s <= '0'; RD1_s <= '0'; RD2_s <= '0'; 
 		wait for ClkPeriod;
 		assert spill_s = '0' and fill_s = '0' report "Error on Test " & integer'image(i) & ": neither SPILL nor FILL should occur";
-		i := i + 1;
+		i := i + 1; 
 		wait until ready_s = '1';
+		wait for ClkPeriod/2;
 		
 		-- read from IN window (check if IN WINDOW(i+1) === OUT WINDOW(i))
 		call_s <= '0'; rtrn_s <= '0';
@@ -164,6 +165,8 @@ begin
 		logWaddr_s(3 downto 0) <= "0000"; 
 		DATAIN_s <= "10101110";
 		wait for ClkPeriod;
+		W_s <= '0';
+		wait for ClkPeriod;
 
 		--second local address
 		en_s <= '1';
@@ -171,6 +174,8 @@ begin
 		logWaddr_s(4) <= '0'; 
 		logWaddr_s(3 downto 0) <= "0101";
 		DATAIN_s <= "01100100";
+		wait for ClkPeriod;
+		W_s <= '0';
 		wait for ClkPeriod;
 
 		--read the two previously written locations
@@ -212,18 +217,31 @@ begin
 		i := i + 1;
 		call_s <= '0';
 		wait until ready_s = '1';
+		wait for ClkPeriod/2;
+
+		
+		--read first IN, previous OUT register
+		W_s <= '0'; RD1_s <= '1'; RD2_s <= '0';
+		logR1addr_s(4) <= '0'; 
+		logR1addr_s(3 downto 0) <= "0000";
+		wait for ClkPeriod;
+		assert RD1out_s = "11001100" report "Error on Test " & integer'image(i) & ": expected output is 11001100";
+		i := i + 1;
+
 		call_s <= '1';
 		wait for ClkPeriod;
 		assert spill_s = '0' and fill_s = '0' report "Error on Test " & integer'image(i) & ": neither SPILL nor FILL should occur";	
 		i := i + 1;
 		call_s <= '0';
 		wait until ready_s = '1';
+		wait for ClkPeriod/2;
 		call_s <= '1';
 		wait for ClkPeriod;
 		assert spill_s = '0' and fill_s = '0' report "Error on Test " & integer'image(i) & ": neither SPILL nor FILL should occur";	
 		i := i + 1;
 		call_s <= '0';
 		wait until ready_s = '1';
+		wait for ClkPeriod/2;
 
 		-- next call will cause a SPILL
 		call_s <= '1';
@@ -235,26 +253,19 @@ begin
 		ackIN_s <= '0';
 			--save into memory
 		for i in 0 to 2*NBlockRegs-1 loop
+			wait for ClkPeriod;
 			memW <= '1';
 			memWaddr <= std_logic_vector(to_unsigned(i, memWaddr'length));
 			memIN <= RD1out_s;
-			wait for ClkPeriod;
 		end loop;
 		memW <= '0';
-		wait until ready_s = '1';		
-
-		--read first IN, previous OUT register
-		W_s <= '0'; RD1_s <= '1'; RD2_s <= '0';
-		logR1addr_s(4) <= '0'; 
-		logR1addr_s(3 downto 0) <= "0000";
-		wait for ClkPeriod;
-		assert RD1out_s = "11001100" report "Error on Test " & integer'image(i) & ": expected output is 11001100";
-		i := i + 1;
+		wait until ready_s = '1';	
+		wait for ClkPeriod/2;	
 
 		--write first IN
 		W_s <= '1'; RD1_s <= '0'; RD2_s <= '0';
-		logR1addr_s(4) <= '0'; 
-		logR1addr_s(3 downto 0) <= "0000";
+		logWaddr_s(4) <= '0'; 
+		logWaddr_s(3 downto 0) <= "0000";
 		DATAIN_s <= "11100001";
 		wait for ClkPeriod;
 
@@ -265,7 +276,9 @@ begin
 		wait for ClkPeriod;
 		assert spill_s = '0' and fill_s = '0' report "Error on Test " & integer'image(i) & ": neither SPILL nor FILL should occur";
 		i := i + 1;
+		rtrn_s <= '0';
 		wait until ready_s = '1';
+		wait for ClkPeriod/2;
 
 		--read first OUT, previous IN register
 		W_s <= '0'; RD1_s <= '1'; RD2_s <= '0';
@@ -281,21 +294,27 @@ begin
 		wait for ClkPeriod;
 		assert spill_s = '0' and fill_s = '0' report "Error on Test " & integer'image(i) & ": neither SPILL nor FILL should occur";
 		i := i + 1;
+		rtrn_s <= '0';
 		wait until ready_s = '1';
+		wait for ClkPeriod/2;
 
 		call_s <= '0'; rtrn_s <= '1'; ackIN_s <= '0'; 			-- a RETURN should be managed (the CU automatically enables the RegFile during the whole procedure)	
 		W_s <= '0'; RD1_s <= '0'; RD2_s <= '0'; 
 		wait for ClkPeriod;
 		assert spill_s = '0' and fill_s = '0' report "Error on Test " & integer'image(i) & ": neither SPILL nor FILL should occur";
 		i := i + 1;
+		rtrn_s <= '0';
 		wait until ready_s = '1';
+		wait for ClkPeriod/2;
 
 		call_s <= '0'; rtrn_s <= '1'; ackIN_s <= '0'; 			-- a RETURN should be managed (the CU automatically enables the RegFile during the whole procedure)	
 		W_s <= '0'; RD1_s <= '0'; RD2_s <= '0'; 
 		wait for ClkPeriod;
 		assert spill_s = '0' and fill_s = '0' report "Error on Test " & integer'image(i) & ": neither SPILL nor FILL should occur";
 		i := i + 1;
+		rtrn_s <= '0';
 		wait until ready_s = '1';
+		wait for ClkPeriod/2;
 
 		-- next RETURN will cause a FILL
 		call_s <= '0'; rtrn_s <= '1'; ackIN_s <= '0'; 
@@ -304,17 +323,18 @@ begin
 		i := i + 1;
 		rtrn_s <= '0'; ackIN_s <= '1';
 		wait until ackOUT_s <= '1';								-- wait until the RegFile is ready to receive
+		wait for ClkPeriod/2;
 		ackIN_s <= '0';
-		wait until rising_edge(clk_s);
 			--receive the latest spilt window from memory
 		for i in 2*NBlockRegs-1 downto 0 loop					-- data is received in a LIFO style
 			memR <= '1';
 			memRaddr <= std_logic_vector(to_unsigned(i, memRaddr'length));
-			DATAIN_s <= memOUT;
-			wait for ClkPeriod;
+			DATAIN_s <= memOUT;	
+			wait for ClkPeriod;	
 		end loop;
 		memR <= '0';
-		wait until ready_s = '1';		
+		wait until ready_s = '1';
+		wait for ClkPeriod/2;		
 
 		--check whether the spilt window corresponds to the filled window
 		W_s <= '0'; RD1_s <= '1'; RD2_s <= '1';
@@ -324,9 +344,8 @@ begin
 		logR2addr_s(3 downto 0) <= "1000";
 		wait for ClkPeriod;
 		assert RD1out_s = "11111111" report "Error on Test " & integer'image(i) & "a (read LOCAL block of the filled window): expected output is 11111111";
-		assert RD2out_s = "10101010" report "Error on Test " & integer'image(i) & "b (read OUT block of the filled window): expected output is 10101010";
+		assert RD2out_s = "10101110" report "Error on Test " & integer'image(i) & "b (read OUT block of the filled window): expected output is 10101010";
 		i := i + 1;
-		
 		wait;
 	end process;
 end test;

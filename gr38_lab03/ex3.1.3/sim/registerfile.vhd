@@ -40,26 +40,31 @@ begin
      if rising_edge(clk) then
 		if reset = '1' then
 	   		registers <= (others => (others => '0'));
-	 	end if;
-	 	if enable = '1' then
-	 		if rd1 = '1' then
-	    	out1 <= registers(to_integer(unsigned(add_rd1)));
-	 		end if;
-     		if rd2 = '1' then
-	     	out2 <= registers(to_integer(unsigned(add_rd2)));
-	  		end if;
-          	if wr = '1' then                -- Write port 1
-	     	registers(to_integer(unsigned(add_wr))) <= datain;
-	     		if rd1 = '1' then             --  write/read
-	        	out1 <= datain;
-	     		end if;	   
-             	if rd2 = '1' then             --  write/read
-	        	out2 <= datain;
-	     		end if;
-          	end if;
-       	else                              -- !enable 
-          	out1 <= (others => 'Z');
-          	out2 <= (others => 'Z');
+	 	elsif reset = '0' then
+	 		if enable = '1' then
+	 			if rd1 = '1' then
+	    			out1 <= registers(to_integer(unsigned(add_rd1)));
+				elsif rd1 = '0' then
+					out1 <= (others => 'Z');
+	 			end if;
+     			if rd2 = '1' then
+	     			out2 <= registers(to_integer(unsigned(add_rd2)));
+				elsif rd2 = '0' then
+					out2 <= (others => 'Z');
+	  			end if;
+          		if wr = '1' then                -- Write port 1
+	     		registers(to_integer(unsigned(add_wr))) <= datain;
+	     			--if rd1 = '1' then             --  write/read
+	        		--out1 <= datain;
+	     			--end if;	   
+            	 	--if rd2 = '1' then             --  write/read
+	        		--out2 <= datain;
+	     			--end if;
+          		end if;
+       		else                              -- !enable 
+          		out1 <= (others => 'Z');
+          		out2 <= (others => 'Z');
+			end if;
         end if;
     end if; -- closed rising edge if
   end process RF_Proc;
