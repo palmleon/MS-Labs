@@ -23,6 +23,8 @@
   - [requirements](gr38_lab03/lab3.pdf)
   - [solution](gr38_lab03) 
 * [Lab4](#lab4)
+  - [requirements](gr38_lab04/lab4.pdf)
+  - [solution](gr38_lab04)
 * [Lab5](#lab5)
 * [Lab6](#lab6)
 
@@ -56,7 +58,10 @@ Windowed Register File and Low-Power Synthesis
 
 ## Lab4
 
-// TODO: to be written
+Control Unit for a simplified version of the DLX datapath:
+- Hardwired CU
+- FSM CU
+- Microprogrammed CU
 
 ## Lab5
 
