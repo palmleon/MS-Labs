@@ -9,7 +9,7 @@ end cu_test;
 
 architecture TEST of cu_test is
 
-    component cu
+    component CU
        port (
               -- FIRST PIPE STAGE OUTPUTS
               EN1    : out std_logic;               -- enables the register file and the pipeline registers
@@ -43,8 +43,8 @@ architecture TEST of cu_test is
 
 begin
 
-        -- instance of DLX
-       dut: cu
+        -- instance of DLX CU
+       DUT: CU
        port map (
                  -- OUTPUTS
                  EN1    => EN1_i,
@@ -67,6 +67,7 @@ begin
                  Rst    => Reset
                );
 
+-- TODO modify from here
         Clock <= not Clock after 1 ns;
 	Reset <= '0', '1' after 6 ns;
 

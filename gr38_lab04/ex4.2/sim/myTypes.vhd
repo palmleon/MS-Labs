@@ -6,7 +6,6 @@ package myTypes is
 -- Control unit input sizes
     constant OP_CODE_SIZE : integer :=  6;                                              -- OPCODE field size
     constant FUNC_SIZE    : integer :=  11;                                             -- FUNC field size
-	constant ALU_OPC_SIZE : integer :=  2;												-- ALU opcode size
 
 -- R-Type instruction -> FUNC field
     constant RTYPE_ADD : std_logic_vector(FUNC_SIZE - 1 downto 0) :=  "00000000000";    -- ADD RS1,RS2,RD
