@@ -41,7 +41,7 @@ end entity;
 
 architecture beh of CU_UP is
     constant cw_size   : integer := 13;   --control word size
-    constant uC_mem_size : integer := 48; --microcode mem size
+    constant uC_mem_size : integer := 49; --microcode mem size
     constant uC_size : integer := integer(ceil(log2(real(uC_mem_size))));
                                                                                     --1bit is for end check     
     type uC_array is array (0 to uC_mem_size - 1) of std_logic_vector(cw_size downto 0);
@@ -49,7 +49,8 @@ architecture beh of CU_UP is
     type alu_array is array (0 to N_RTYPE - 1) of std_logic_vector(ALU_CTRL_SIZE - 1 downto 0);
 
     --microcode
-    signal uC_mem : uC_array := ("00000000000000",  --NOP
+    signal uC_mem : uC_array := ("00000000000001",
+                                 "00000000000000",  --NOP
                                  "00000000000000",
                                  "00000000000001",
                                  "11100000000000",  --R_type (stage1)
@@ -100,22 +101,22 @@ architecture beh of CU_UP is
                                  );
     
     --address table
-    signal addr_mem : addr_array :=   (     to_unsigned(0, uC_size),  --NOP
-                                            to_unsigned(3, uC_size),  --R_Type 
-                                            to_unsigned(6, uC_size),  --ADDI1
-                                            to_unsigned(9, uC_size),  --SUBI1
-                                            to_unsigned(12, uC_size), --ANDI1
-                                            to_unsigned(15, uC_size), --ORI1
-                                            to_unsigned(18, uC_size), --ADDI2
-                                            to_unsigned(21, uC_size), --SUBI2
-                                            to_unsigned(24, uC_size), --ANDI2
-                                            to_unsigned(27, uC_size), --ORI2
-                                            to_unsigned(30, uC_size), --MOV
-                                            to_unsigned(33, uC_size), --S_REG1
-                                            to_unsigned(36, uC_size), --S_REG2
-                                            to_unsigned(39, uC_size), --S_MEM2
-                                            to_unsigned(42, uC_size), --L_MEM1
-                                            to_unsigned(45, uC_size)  --L_MEM2
+    signal addr_mem : addr_array :=   (     to_unsigned(1, uC_size),  --NOP
+                                            to_unsigned(4, uC_size),  --R_Type 
+                                            to_unsigned(7, uC_size),  --ADDI1
+                                            to_unsigned(10, uC_size),  --SUBI1
+                                            to_unsigned(13, uC_size), --ANDI1
+                                            to_unsigned(16, uC_size), --ORI1
+                                            to_unsigned(19, uC_size), --ADDI2
+                                            to_unsigned(22, uC_size), --SUBI2
+                                            to_unsigned(25, uC_size), --ANDI2
+                                            to_unsigned(28, uC_size), --ORI2
+                                            to_unsigned(31, uC_size), --MOV
+                                            to_unsigned(34, uC_size), --S_REG1
+                                            to_unsigned(37, uC_size), --S_REG2
+                                            to_unsigned(40, uC_size), --S_MEM2
+                                            to_unsigned(43, uC_size), --L_MEM1
+                                            to_unsigned(46, uC_size)  --L_MEM2
                                             );
 
     --alu control signals table, it helps reducing the microcode lenght for R-type ops
@@ -144,21 +145,23 @@ architecture beh of CU_UP is
       MEM_WR      <= cw(2);
       MUX_SEL3    <= cw(1);
 
+    --update the CW value to the one pointed by the uPC
+    cw <= uC_mem(to_integer(unsigned(uPC)));
+
     --process to update the uPC
     process (CLK)
     begin
         if rising_edge(clk) then
             --if reset is rised then the cw is forced to start a new istruction
             if (RST = '1') then
-                cw <= "00000000000001";
+                uPC <= (others => '0');
             else
                 if cw(0) = '1' then  --if the end bit is '1' then the instruction is terminated
                     uPC <= addr_mem(to_integer(unsigned(OPCODE)));  --update uPC value to the next uInstruction to be executed
                 else
                     uPC <= uPC + 1;  --else, increment it to continue the execution of the current instruction
                 end if;
-                --update the CW value to the one pointed by the uPC
-                cw <= uC_mem(to_integer(unsigned(uPC)));
+                
             end if;
         end if;
     end process;

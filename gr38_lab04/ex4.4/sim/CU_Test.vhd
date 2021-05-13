@@ -154,6 +154,7 @@ begin
         expected_cw <= cw_matrix(0);
 		wait until rising_edge(clock);
 		Reset <= '0';
+                wait for ClkPeriod;
 		-- At the moment, the IR is sending out a NOP (opcode = "000000")
 		verify_results(TestCnt);
 
