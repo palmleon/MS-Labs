@@ -150,12 +150,12 @@ begin
 			end function print;
 			procedure verify_results (TestCnt : in integer) is
 		   		begin
-					wait for ClkPeriod/2;	-- sample on the falling edge
+					wait until falling_edge(Clock);	-- sample on the falling edge
 					assert decode_signals 	= expected_decode_signals report "Test " & integer'image(TestCnt) & "a - expected: " & print(expected_decode_signals) & ", actual: " & print(decode_signals);
 					assert exe_signals 		= expected_exe_signals report "Test " & integer'image(TestCnt) & "b - expected: " & print(expected_exe_signals)& ", actual: " & print(exe_signals);
 					assert memWB_signals 	= expected_memWB_signals report "Test " & integer'image(TestCnt) & "c - expected: " & print(expected_memWB_signals)& ", actual: " & print(memWB_signals);
 					assert ALU1_i & ALU2_i 	= expected_ALU_opcode report "Test " & integer'image(TestCnt) & "d - expected: " & print(expected_ALU_opcode)& ", actual: " & print(ALU1_i & ALU2_i);
-					wait for ClkPeriod/2;	-- go the next rising edge
+					wait until rising_edge(Clock);	-- go the next rising edge
 			end procedure verify_results;	
 			variable TestCnt: integer := 1;
 		begin

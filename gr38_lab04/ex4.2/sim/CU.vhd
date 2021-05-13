@@ -6,27 +6,27 @@ use work.myTypes.all;
 
 entity CU is
   port (
-        -- FIRST PIPE STAGE OUTPUTS
-    	EN1    : out std_logic;               -- enables the register file and the pipeline registers
-		RF1    : out std_logic;               -- enables the read port 1 of the register file
-        RF2    : out std_logic;               -- enables the read port 2 of the register file
-        -- SECOND PIPE STAGE OUTPUTS
-        EN2    : out std_logic;               -- enables the pipe registers
-        S1     : out std_logic;               -- input selection of the first multiplexer
-        S2     : out std_logic;               -- input selection of the second multiplexer
-        ALU1   : out std_logic;               -- alu control bit
-        ALU2   : out std_logic;               -- alu control bit
-        -- THIRD PIPE STAGE OUTPUTS
-        EN3    : out std_logic;               -- enables the memory and the pipeline registers
-        RM     : out std_logic;               -- enables the read-out of the memory
-        WM     : out std_logic;               -- enables the write-in of the memory
-        S3     : out std_logic;               -- input selection of the multiplexer
-		WF1    : out std_logic;               -- enables the write port of the register file
-        -- INPUTS
-        OPCODE : in  std_logic_vector(OP_CODE_SIZE - 1 downto 0);
-        FUNC   : in  std_logic_vector(FUNC_SIZE - 1 downto 0);              
-        Clk : in std_logic;
-        Rst : in std_logic);                  -- Active Low
+       -- FIRST PIPE STAGE OUTPUTS
+       RF1    : out std_logic;               -- enables the read port 1 of the register file
+       RF2    : out std_logic;               -- enables the read port 2 of the register file
+	   EN1    : out std_logic;               -- enables the register file and the pipeline registers
+       -- SECOND PIPE STAGE OUTPUTS
+       S1     : out std_logic;               -- input selection of the first multiplexer
+       S2     : out std_logic;               -- input selection of the second multiplexer
+	   EN2    : out std_logic;               -- enables the pipe registers
+       ALU1   : out std_logic;               -- alu control bit
+       ALU2   : out std_logic;               -- alu control bit
+       -- THIRD PIPE STAGE OUTPUTS
+       RM     : out std_logic;               -- enables the read-out of the memory
+       WM     : out std_logic;               -- enables the write-in of the memory
+	   EN3    : out std_logic;               -- enables the memory and the pipeline registers
+       S3     : out std_logic;               -- input selection of the multiplexer
+	   WF1    : out std_logic;               -- enables the write port of the register file
+       -- INPUTS
+       OPCODE : in  std_logic_vector(OP_CODE_SIZE - 1 downto 0);
+       FUNC   : in  std_logic_vector(FUNC_SIZE - 1 downto 0);              
+       Clk 	  : in std_logic;
+       Rst    : in std_logic);                  -- Active Low
 end CU;
 
 architecture Beh of CU is
@@ -67,9 +67,9 @@ begin
 	NextCUExeReg	<= CW(CW_SIZE-NFirstStageSignals-1 downto 0); -- only a fraction of the CW signals are propagated (the others are actually used at Decode Stage)
 	S1  			<= CurrCUExeReg(9);
 	S2  			<= CurrCUExeReg(8);
-	ALU1 			<= CurrCUExeReg(7);
- 	ALU2			<= CurrCUExeReg(6);
-	EN2			 	<= CurrCUExeReg(5);
+	EN2			 	<= CurrCUExeReg(7);
+	ALU1 			<= CurrCUExeReg(6);
+ 	ALU2			<= CurrCUExeReg(5);
 	NextCUMemWBReg 	<= CurrCUExeReg(4 downto 0); -- only a fraction of the CUExeReg signals are propagated (the others are actually used at Ex Stage)
 	RM 				<= CurrCUMemWBReg(4);
 	WM				<= CurrCUMemWBReg(3);
