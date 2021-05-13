@@ -1,13 +1,14 @@
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
 use ieee.numeric_std.all;
+use work.myTypes.all;
 
 entity CU_FSM is
     generic 
     (
-        OP_CODE_SIZE  : integer := 6;     --Op Code Size
-        FUNC_SIZE     : integer := 11;    --Func Field Size for R-Type instructions
-        N_OPS         : integer := 15
+        OP_CODE_SIZE    : integer;   --Op Code Size
+        FUNC_SIZE       : integer;   --Func Field Size for R-Type instructions
+        N_OPS           : integer    --Total number of Ops
     );
     port 
     (
@@ -39,7 +40,8 @@ architecture beh of CU_FSM is
     constant cw_size   : integer := 13;
     type cw_const is array(integer range 0 to N_OPS - 1) of std_logic_vector(cw_size -1 downto 0);
     --constat matrix to assign values in the decode stage rapidly
-    constant cw_matrix : cw_const := ("1111100001001", --ADD
+    constant cw_matrix : cw_const := ("0000000000000", --NOP
+                                      "1111100001001", --ADD
                                       "1111100101001", --SUB
                                       "1111101001001", --AND
                                       "1111101101001", --OR
@@ -117,59 +119,62 @@ architecture beh of CU_FSM is
                     next_state <= execute;
                     stage1 <= cw(cw_size - 1 downto cw_size - 3)
                     case OPCODE is
-                        when R_type =>
+                        when NOP =>
+                            cw <= cw_matrix(0); 
+
+                        when RTYPE =>
                             case FUNC is
-                                when R_ADD =>
-                                    cw <= cw_matrix(0);
-                                when R_SUB =>
+                                when RTYPE_ADD =>
                                     cw <= cw_matrix(1);
-                                when R_AND =>
+                                when RTYPE_SUB =>
                                     cw <= cw_matrix(2);
-                                when R_OR =>
+                                when RTYPE_AND =>
                                     cw <= cw_matrix(3);
+                                when RTYPE_OR =>
+                                    cw <= cw_matrix(4);
                             end case;
     
-                        when ADDI1 =>
-                            cw <= cw_matrix(4);
-                            
-                        when SUBI1 =>
+                        when ITYPE_ADDI1 =>
                             cw <= cw_matrix(5);
-
-                        when ANDI1 =>
+                            
+                        when ITYPE_SUBI1 =>
                             cw <= cw_matrix(6);
 
-                        when ORI1 =>
+                        when ITYPE_ANDI1 =>
                             cw <= cw_matrix(7);
 
-                        when ADDI2 =>
+                        when ITYPE_ORI1 =>
                             cw <= cw_matrix(8);
 
-                        when SUBI2 =>
+                        when ITYPE_ADDI2 =>
                             cw <= cw_matrix(9);
 
-                        when ANDI2 =>
+                        when ITYPE_SUBI2 =>
                             cw <= cw_matrix(10);
 
-                        when ORI2 =>
+                        when ITYPE_ANDI2 =>
                             cw <= cw_matrix(11);
 
-                        when MOV =>
+                        when ITYPE_ORI2 =>
                             cw <= cw_matrix(12);
 
-                        when S_REG1 =>
+                        when ITYPE_MOV =>
                             cw <= cw_matrix(13);
 
-                        when S_REG2 =>
+                        when ITYPE_SREG1 =>
                             cw <= cw_matrix(14);
 
-                        when S_MEM2 =>
+                        when ITYPE_SREG2 =>
                             cw <= cw_matrix(15);
 
-                        when L_MEM1 =>
+                        when ITYPE_SMEM =>
                             cw <= cw_matrix(16);
 
-                        when L_MEM2 =>
+                        when ITYPE_LMEM1 =>
                             cw <= cw_matrix(17);
+
+                        when ITYPE_LMEM2 =>
+                            cw <= cw_matrix(18);
                     end case;
 
                 --during execute the stage2 signals are assigned to the relative ones in the CW

@@ -5,10 +5,10 @@ use ieee.numeric_std.all;
 entity CU_UP is
     generic 
     (
-        FUNC_SIZE     : integer   --func Field Size for R-Type instructions
-        OP_CODE_SIZE  : integer   --single OpCode Size
-        N_OPCODE      : integer   --number of different OpCode
-        ALU_CTRL_SIZE : integer   --number of control signals for ALU management
+        FUNC_SIZE     : integer;   --func Field Size for R-Type instructions
+        OP_CODE_SIZE  : integer;   --single OpCode Size
+        N_OPCODE      : integer;   --number of different OpCode
+        ALU_CTRL_SIZE : integer    --number of control signals for ALU management
     );
     port
     (
@@ -41,11 +41,11 @@ architecture beh of CU_UP is
     constant uC_mem_size : integer := 50; --microcode mem size
                                                                                     --1bit is for validity check     
     type uC_array is array (integer range 0 to uC_mem_size - 1) of std_logic_vector(cw_size downto 0);
-    type addr_array is array (integer range 0 to N_OPS - 1) of unsigned(ceil(log(real(N_OPS))) - 1 downto 0);
+    type addr_array is array (integer range 0 to N_OPCODE - 1) of unsigned(ceil(log(real(N_OPCODE))) - 1 downto 0);
     type alu_array is array (integer range 0 to N_RTYPE - 1) of std_logic_vector(ALU_CTRL_SIZE - 1 downto 0);
 
     --microcode
-    signal uC_mem : uC_array := ("00000000000001",  --RESET
+    signal uC_mem : uC_array := ("00000000000001",  --NOP
                                  "11100000000000",  --R_type (stage1)
                                  "00011011000000",  --R_type (stage2)
                                  "00000000010011",  --R_type (stage3)
@@ -94,7 +94,8 @@ architecture beh of CU_UP is
                                  );
     
     --address table
-    signal addr_mem : reloc_mem_array :=   (to_unsigned(1, 10),  --R_Type 
+    signal addr_mem : reloc_mem_array :=   (to_unsigned(0, 10),  --NOP
+                                            to_unsigned(1, 10),  --R_Type 
                                             to_unsigned(4, 10),  --ADDI1
                                             to_unsigned(7, 10),  --SUBI1
                                             to_unsigned(10, 10), --ANDI1
@@ -111,7 +112,7 @@ architecture beh of CU_UP is
                                             to_unsigned(43, 10), --L_MEM2
                                             );
 
-    --alu control signals table
+    --alu control signals table, it helps reducing the microcode lenght
     signal alu_ctrl : alu_array := ("00"
                                     "01"
                                     "10"
@@ -119,7 +120,7 @@ architecture beh of CU_UP is
 
     --CW signal and microPC signal definition
     signal cw   : std_logic_vector(cw_size -1 downto 0);
-    signal uPC  : unsigned(ceil(log(real(N_OPS))) - 1 downto 0);
+    signal uPC  : unsigned(ceil(log(real(N_OPCODE))) - 1 downto 0);
 
     --signal assignment to output
     EN_S1       <= cw(0);
