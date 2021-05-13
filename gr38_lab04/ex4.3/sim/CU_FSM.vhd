@@ -102,6 +102,7 @@ architecture beh of CU_FSM is
             end if;
         end process;
 
+        --process to update outputs, future state evaluations
         process(curr_state, OPCODE, FUNC, cw)
         begin
             --default

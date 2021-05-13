@@ -46,12 +46,13 @@ architecture TEST of cu_test is
 	constant OP_CODE_SIZE: integer := 6;
 	constant FUNC_SIZE: integer := 11;
 
+	--stage dimensions
 	constant NFirstStageSignals: integer := 3;
 	constant NSecondStageSignals: integer := 5;
 	constant NThirdStageSignals: integer := 5;
 
 	type cw_const is array(integer range 0 to N_OPS - 1) of std_logic_vector(cw_size -1 downto 0);
-    --constat matrix to assign values in the decode stage rapidly
+    --constat matrix to compare values in the decode stage rapidly
     constant cw_matrix : cw_const := ("0000000000000", --NOP
                                       "1111100001001", --ADD
                                       "1111100101001", --SUB
@@ -86,7 +87,7 @@ architecture TEST of cu_test is
 	signal expected_cw:									std_logic_vector(CW_SIZE-1 downto 0);							-- expected CW
 
 begin
-	-- instance of DLX CU
+	-- instance of CU_FSM
 	DUT: CU_FSM
 	port map (
 			CLK		=> Clock,
@@ -112,6 +113,7 @@ begin
 			MUX_SEL3    => S3_i
 			);
 
+	--clock process
 	ClkProc: process
 	begin
 		Clock <= '0';
@@ -147,14 +149,14 @@ begin
 		end procedure;
 		variable TestCnt: integer := 1;
 	begin
-		-- in the following Tests, we provide a new Instruction on the rising edge of the Clock (fetching it from the IR), and sample all the signals (i.e. in all the Pipeline Stages) on the falling edge
+		-- in the following Tests a new instruction is provided each 3 clock cycles, the evaluation is done in verify_results() procedure on the falling edge
 		Reset <= '1';
-                expected_cw <= cw_matrix(0);
+        expected_cw <= cw_matrix(0);
 		wait until rising_edge(clock);
 		Reset <= '0';
-                wait for ClkPeriod;
+        wait for ClkPeriod;
 		-- At the moment, the IR is sending out a NOP (opcode = "000000")
-		verify_results(TestCnt);
+		verify_results(TestCnt);  --evaluation
 
 		-- ADD RS1,RS2,RD -> Rtype
 		cu_opcode_i <= RTYPE;
@@ -270,6 +272,7 @@ begin
 		wait;
 	end process;
 	
+	--signal assignment to compare the procuced outputs with the expected ones
 	decode_signals 	<= EN1_i & RF1_i & RF2_i;
 	exe_signals	<= EN2_i & S1_i & S2_i & ALU1_i & ALU2_i;
 	memWB_signals	<= EN3_i & WF1_i & RM_i & WM_i & S3_i;

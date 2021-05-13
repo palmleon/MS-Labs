@@ -118,7 +118,7 @@ architecture beh of CU_UP is
                                             to_unsigned(45, uC_size)  --L_MEM2
                                             );
 
-    --alu control signals table, it helps reducing the microcode lenght
+    --alu control signals table, it helps reducing the microcode lenght for R-type ops
     signal alu_ctrl : alu_array := ("00",
                                     "01",
                                     "10",
@@ -144,26 +144,26 @@ architecture beh of CU_UP is
       MEM_WR      <= cw(2);
       MUX_SEL3    <= cw(1);
 
-      --update the CW value to the one pointed by the uPC
-      cw <= uC_mem(to_integer(unsigned(uPC)));
-
     --process to update the uPC
     process (CLK)
     begin
         if rising_edge(clk) then
-            --if reset is rised then the uPC will point to the reset line of microcode
+            --if reset is rised then the cw is forced to start a new istruction
             if (RST = '1') then
-                uPC <= (others => '0');
+                cw <= "00000000000001";
             else
                 if cw(0) = '1' then  --if the end bit is '1' then the instruction is terminated
                     uPC <= addr_mem(to_integer(unsigned(OPCODE)));  --update uPC value to the next uInstruction to be executed
                 else
                     uPC <= uPC + 1;  --else, increment it to continue the execution of the current instruction
                 end if;
+                --update the CW value to the one pointed by the uPC
+                cw <= uC_mem(to_integer(unsigned(uPC)));
             end if;
         end if;
     end process;
 
+    --process to update the ALU related signals
     process(cw, OPCODE, FUNC)
     begin
       ALU1    <= cw(7);

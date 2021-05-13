@@ -47,12 +47,13 @@ architecture TEST of cu_test is
 	constant OP_CODE_SIZE: integer := 6;
 	constant FUNC_SIZE: integer := 11;
 
+	--stage dimensions
 	constant NFirstStageSignals: integer := 3;
 	constant NSecondStageSignals: integer := 5;
 	constant NThirdStageSignals: integer := 5;
 
 	type cw_const is array(integer range 0 to N_OPS - 1) of std_logic_vector(cw_size -1 downto 0);
-    --constat matrix to assign values in the decode stage rapidly
+    --constat matrix to compare values in the decode stage rapidly
     constant cw_matrix : cw_const := ("0000000000000", --NOP
                                       "1111100001001", --ADD
                                       "1111100101001", --SUB
@@ -87,7 +88,7 @@ architecture TEST of cu_test is
 	signal expected_cw:									std_logic_vector(CW_SIZE-1 downto 0);							-- expected CW
 
 begin
-	-- instance of DLX CU
+	-- instance of CU_UP
 	DUT: CU_UP
 	port map (
 			CLK			=> Clock,
@@ -113,6 +114,7 @@ begin
 			MUX_SEL3    => S3_i
 			);
 
+	--clock process
 	ClkProc: process
 	begin
 		Clock <= '0';
@@ -147,9 +149,9 @@ begin
 		end procedure;
 		variable TestCnt: integer := 1;
 	begin
-		-- in the following Tests, we provide a new Instruction on the rising edge of the Clock (fetching it from the IR), and sample all the signals (i.e. in all the Pipeline Stages) on the falling edge
+		-- in the following Tests a new instruction is provided each 3 clock cycles, the evaluation is done in verify_results() procedure on the falling edge
 		Reset <= '1';
-                expected_cw <= cw_matrix(0);
+        expected_cw <= cw_matrix(0);
 		wait until rising_edge(clock);
 		Reset <= '0';
 		-- At the moment, the IR is sending out a NOP (opcode = "000000")
@@ -160,49 +162,49 @@ begin
 		cu_func_i <= RTYPE_ADD;
 		expected_cw <= cw_matrix(1);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+    	wait for ClkPeriod/2;  --this delay is added at this point since it is necessary to have the instruction already present before the sampling on the rising edge
 		verify_results(TestCnt);
 
 		-- ADDI1 RS1,RD,INP1 -> Itype
 		cu_opcode_i <= ITYPE_ADDI1;
 		expected_cw <= cw_matrix(5);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- ADDI2 RS1,RD,INP2
 		cu_opcode_i <= ITYPE_ADDI2;
 		expected_cw <= cw_matrix(9);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- MOV  RS1,RD
 		cu_opcode_i <= ITYPE_MOV;
 		expected_cw <= cw_matrix(13);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- SMEM2 RS1,RS2,INP2
 		cu_opcode_i <= ITYPE_SMEM;
 		expected_cw <= cw_matrix(16);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- ANDI2 RS1,RD,INP2
 		cu_opcode_i <= ITYPE_ANDI2;
 		expected_cw <= cw_matrix(11);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- ANDI1 RS1,RD,INP1
 		cu_opcode_i <= ITYPE_ANDI1;
 		expected_cw <= cw_matrix(7);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- AND RS1,RS2,RD
@@ -210,28 +212,28 @@ begin
 		cu_func_i <= RTYPE_AND;
 		expected_cw <= cw_matrix(3);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- LMEM2 RS1,RD,INP2
 		cu_opcode_i <= ITYPE_LMEM2;
 		expected_cw <= cw_matrix(18);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- SREG1 RD,INP1
 		cu_opcode_i <= ITYPE_SREG1;
 		expected_cw <= cw_matrix(14);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- ORI2 RS1,RD,INP2	
 		cu_opcode_i <= ITYPE_ORI2;
 		expected_cw <= cw_matrix(12);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- SUB RS1,RS2,RD
@@ -239,14 +241,14 @@ begin
 		cu_func_i <= RTYPE_SUB;
 		expected_cw <= cw_matrix(2);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- ORI1 RS1,RD,INP1
 		cu_opcode_i <= ITYPE_ORI1;
 		expected_cw <= cw_matrix(8);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- OR  RS1,RS2,RD
@@ -254,39 +256,40 @@ begin
 		cu_func_i <= RTYPE_OR;
 		expected_cw <= cw_matrix(4);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- SUBI1 RS1,RD,INP1
 		cu_opcode_i <= ITYPE_SUBI1;
 		expected_cw <= cw_matrix(6);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- SUBI2 RS1,RD,INP2
 		cu_opcode_i <= ITYPE_SUBI2;
 		expected_cw <= cw_matrix(10);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- SREG2 RD,INP2
 		cu_opcode_i <= ITYPE_SREG2;
 		expected_cw <= cw_matrix(15);
 		TestCnt := TestCnt + 1;
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		-- LMEM1 RS1,RD,INP1
 		cu_opcode_i <= ITYPE_LMEM1;
 		expected_cw <= cw_matrix(17);
-                wait for ClkPeriod/2;
+        wait for ClkPeriod/2;
 		verify_results(TestCnt);
 
 		wait;
 	end process;
 	
+	--signal assignment to compare the procuced outputs with the expected ones
 	decode_signals 	<= EN1_i & RF1_i & RF2_i;
 	exe_signals		<= EN2_i & S1_i & S2_i & ALU1_i & ALU2_i;
 	memWB_signals	<= EN3_i & WF1_i & RM_i & WM_i & S3_i;
