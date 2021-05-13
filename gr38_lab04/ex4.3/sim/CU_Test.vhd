@@ -37,7 +37,7 @@ architecture TEST of cu_test is
 			RF_WR1      : out std_logic;  --RF write enable on write port
 			MEM_RD      : out std_logic;  --Memory read-out enable
 			MEM_WR      : out std_logic;  --Memory write-in enable
-			MUX_SEL2    : out std_logic   --MUX selector ALU_OUT MEM_OUT
+			MUX_SEL3    : out std_logic   --MUX selector ALU_OUT MEM_OUT
 		);
 	end component;
 	
@@ -109,7 +109,7 @@ begin
 			RF_WR1      => WF1_i,
 			MEM_RD      => RM_i,
 			MEM_WR      => WM_i,
-			MUX_SEL2    => S3_i
+			MUX_SEL3    => S3_i
 			);
 
 	ClkProc: process

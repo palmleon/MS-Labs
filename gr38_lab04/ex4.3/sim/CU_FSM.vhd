@@ -1,3 +1,5 @@
+library ieee;
+use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
 use ieee.numeric_std.all;
@@ -6,9 +8,9 @@ use work.myTypes.all;
 entity CU_FSM is
     generic 
     (
-        OP_CODE_SIZE    : integer;   --Op Code Size
-        FUNC_SIZE       : integer;   --Func Field Size for R-Type instructions
-        N_OPS           : integer    --Total number of Ops
+        OP_CODE_SIZE    : integer := work.myTypes.OP_CODE_SIZE; --Op Code Size
+        FUNC_SIZE       : integer := work.myTypes.FUNC_SIZE;    --Func Field Size for R-Type instructions
+        N_OPS           : integer := work.myTypes.N_OPS         --Total number of Ops
     );
     port 
     (
@@ -32,7 +34,7 @@ entity CU_FSM is
         RF_WR1      : out std_logic;  --RF write enable on write port
         MEM_RD      : out std_logic;  --Memory read-out enable
         MEM_WR      : out std_logic;  --Memory write-in enable
-        MUX_SEL2    : out std_logic   --MUX selector ALU_OUT MEM_OUT
+        MUX_SEL3    : out std_logic   --MUX selector ALU_OUT MEM_OUT
     );
 end entity;
 
@@ -71,25 +73,25 @@ architecture beh of CU_FSM is
 
     --signal containig the current CW updated during the decode stage
     signal cw   : std_logic_vector(cw_size - 1 downto 0);
-
-    --signal to output assignments
-    EN_S1       <= stage1(2)
-    RF_RD1      <= stage1(1)
-    RF_RD2      <= stage1(0)
-
-    EN_S2       <= stage2(4)
-    MUX_SEL1    <= stage2(3)
-    MUX_SEL2    <= stage2(2)
-    ALU1        <= stage2(1)
-    ALU2        <= stage2(0)
-    
-    EN_S3       <= stage3(4)
-    RF_WR1      <= stage1(3)
-    MEM_RD      <= stage3(2)
-    MEM_WR      <= stage3(1)
-    MUX_SEL2    <= stage3(0)
     
     begin
+        --signal to output assignments
+        EN_S1       <= stage1(2)
+        RF_RD1      <= stage1(1)
+        RF_RD2      <= stage1(0)
+
+        EN_S2       <= stage2(4)
+        MUX_SEL1    <= stage2(3)
+        MUX_SEL2    <= stage2(2)
+        ALU1        <= stage2(1)
+        ALU2        <= stage2(0)
+        
+        EN_S3       <= stage3(4)
+        RF_WR1      <= stage1(3)
+        MEM_RD      <= stage3(2)
+        MEM_WR      <= stage3(1)
+        MUX_SEL2    <= stage3(0)
+
         --process to update the state
         process(CLK)
         begin

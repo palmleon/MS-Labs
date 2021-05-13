@@ -1,3 +1,5 @@
+library ieee;
+use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
 use ieee.numeric_std.all;
@@ -5,10 +7,10 @@ use ieee.numeric_std.all;
 entity CU_UP is
     generic 
     (
-        FUNC_SIZE     : integer;   --func Field Size for R-Type instructions
-        OP_CODE_SIZE  : integer;   --single OpCode Size
-        N_OPCODE      : integer;   --number of different OpCode
-        ALU_CTRL_SIZE : integer    --number of control signals for ALU management
+        FUNC_SIZE     : integer := work.myTypes.FUNC_SIZE;      --func Field Size for R-Type instructions
+        OP_CODE_SIZE  : integer := work.myTypes.OP_CODE_SIZE;   --single OpCode Size
+        N_OPCODE      : integer := work.myTypes.N_OPCODE;       --number of different OpCode
+        ALU_CTRL_SIZE : integer := work.myTypes.ALU_CTRL_SIZE   --number of control signals for ALU management
     );
     port
     (
@@ -32,7 +34,7 @@ entity CU_UP is
         RF_WR1      : out std_logic;  --RF write enable on write port
         MEM_RD      : out std_logic;  --memory read-out enable
         MEM_WR      : out std_logic;  --memory write-in enable
-        MUX_SEL2    : out std_logic   --MUX selector ALU_OUT MEM_OUT
+        MUX_SEL3    : out std_logic   --MUX selector ALU_OUT MEM_OUT
     );
 end entity;
 

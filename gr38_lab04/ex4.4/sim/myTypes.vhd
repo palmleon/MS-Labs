@@ -4,8 +4,10 @@ use ieee.std_logic_1164.all;
 package myTypes is
 
 -- Control unit input sizes
-    constant OP_CODE_SIZE : integer :=  6;                                              -- OPCODE field size
-    constant FUNC_SIZE    : integer :=  11;                                             -- FUNC field size
+    constant OP_CODE_SIZE  : integer :=  6;                                              -- OPCODE field size
+    constant FUNC_SIZE     : integer :=  11;                                             -- FUNC field size
+	constant N_OPCODE      : integer :=  16; 
+	constant ALU_CTRL_SIZE : integer :=  2;  
     
 -- NOP instruction -> OPCODE field
 	constant NOP:	 std_logic_vector(OP_CODE_SIZE - 1 downto 0) := "000000";			-- NOP			   		
