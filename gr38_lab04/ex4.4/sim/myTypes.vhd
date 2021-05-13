@@ -8,6 +8,7 @@ package myTypes is
     constant FUNC_SIZE     : integer :=  11;                                             -- FUNC field size
 	constant N_OPCODE      : integer :=  16; 
 	constant ALU_CTRL_SIZE : integer :=  2;  
+	constant N_RTYPE : integer := 4;
     
 -- NOP instruction -> OPCODE field
 	constant NOP:	 std_logic_vector(OP_CODE_SIZE - 1 downto 0) := "000000";			-- NOP			   		

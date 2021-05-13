@@ -149,9 +149,9 @@ begin
 		variable TestCnt: integer := 1;
 	begin
 		-- in the following Tests, we provide a new Instruction on the rising edge of the Clock (fetching it from the IR), and sample all the signals (i.e. in all the Pipeline Stages) on the falling edge
-		Reset <= '0';
-		wait until rising_edge(clock);
 		Reset <= '1';
+		wait until rising_edge(clock);
+		Reset <= '0';
 		-- At the moment, the IR is sending out a NOP (opcode = "000000")
 		verify_results(TestCnt);
 
@@ -271,7 +271,7 @@ begin
 	
 	decode_signals 	<= EN1_i & RF1_i & RF2_i;
 	exe_signals		<= EN2_i & S1_i & S2_i & ALU1_i & ALU2_i;
-	memWB_signals	<= EN3_i & WF1_i & RM_i & & WM_i & S3_i;
+	memWB_signals	<= EN3_i & WF1_i & RM_i & WM_i & S3_i;
 	expected_decode_signals <= expected_cw(CW_SIZE-1 downto CW_SIZE-NFirstStageSignals);
 	expected_exe_signals	<= expected_cw(CW_SIZE-NFirstStageSignals-1 downto CW_SIZE-NFirstStageSignals-NSecondStageSignals);
 	expected_memWB_signals	<= expected_cw(CW_SIZE-NFirstStageSignals-NSecondStageSignals-1 downto 0);

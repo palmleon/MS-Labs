@@ -8,35 +8,36 @@ end cu_test;
 
 architecture TEST of cu_test is
 
-    component CU_FSM is
+    component CU_UP is
 		generic 
 		(
-			OP_CODE_SIZE  : integer := 6;     --Op Code Size
-			FUNC_SIZE     : integer := 11;    --Func Field Size for R-Type instructions
-			N_OPS         : integer := 19
+			FUNC_SIZE     : integer := 11;  --func Field Size for R-Type instructions
+			OP_CODE_SIZE  : integer := 6;   --single OpCode Size
+			N_OPCODE      : integer := 16;   --number of different OpCode
+			ALU_CTRL_SIZE : integer := 2  --number of control signals for ALU management
 		);
-		port 
+		port
 		(
-			CLK         : in  std_logic;  --Clock
-			RST         : in  std_logic;  --Reset
-			
+			Clk         : in  std_logic;  --clock
+			Rst         : in  std_logic;  --reset
+
 			OPCODE      : in  std_logic_vector(OP_CODE_SIZE - 1 downto 0);
 			FUNC        : in  std_logic_vector(FUNC_SIZE - 1 downto 0);
-			
-			EN_S1       : out std_logic;  --Global enable of Stage1
+
+			EN_S1       : out std_logic;  --global enable of Stage1
 			RF_RD1      : out std_logic;  --RF read enable on read port 1
 			RF_RD2      : out std_logic;  --RF read enable on read port 2
 			
-			EN_S2       : out std_logic;  --Global enable of Stage2
+			EN_S2       : out std_logic;  --global enable of Stage2
 			MUX_SEL1    : out std_logic;  --MUX selector INP1 REG_A
 			MUX_SEL2    : out std_logic;  --MUX selector INP2 REG_B
 			ALU1        : out std_logic;  --ALU control signals
 			ALU2        : out std_logic;
 			
-			EN_S3       : out std_logic;  --Global enable of Stage3
+			EN_S3       : out std_logic;  --global enable of Stage3
 			RF_WR1      : out std_logic;  --RF write enable on write port
-			MEM_RD      : out std_logic;  --Memory read-out enable
-			MEM_WR      : out std_logic;  --Memory write-in enable
+			MEM_RD      : out std_logic;  --memory read-out enable
+			MEM_WR      : out std_logic;  --memory write-in enable
 			MUX_SEL3    : out std_logic   --MUX selector ALU_OUT MEM_OUT
 		);
 	end component;
@@ -87,9 +88,9 @@ architecture TEST of cu_test is
 
 begin
 	-- instance of DLX CU
-	DUT: CU_FSM
+	DUT: CU_UP
 	port map (
-			CLK		=> Clock,
+			CLK			=> Clock,
 			RST     	=> Reset,
 			
 			OPCODE  	=> cu_opcode_i,
@@ -148,7 +149,7 @@ begin
 		variable TestCnt: integer := 1;
 	begin
 		-- in the following Tests, we provide a new Instruction on the rising edge of the Clock (fetching it from the IR), and sample all the signals (i.e. in all the Pipeline Stages) on the falling edge
-		Reset <= '1';
+		Reset <= 1';
 		wait until rising_edge(clock);
 		Reset <= '0';
 		-- At the moment, the IR is sending out a NOP (opcode = "000000")
@@ -269,7 +270,7 @@ begin
 	end process;
 	
 	decode_signals 	<= EN1_i & RF1_i & RF2_i;
-	exe_signals	<= EN2_i & S1_i & S2_i & ALU1_i & ALU2_i;
+	exe_signals		<= EN2_i & S1_i & S2_i & ALU1_i & ALU2_i;
 	memWB_signals	<= EN3_i & WF1_i & RM_i & WM_i & S3_i;
 	expected_decode_signals <= expected_cw(CW_SIZE-1 downto CW_SIZE-NFirstStageSignals);
 	expected_exe_signals	<= expected_cw(CW_SIZE-NFirstStageSignals-1 downto CW_SIZE-NFirstStageSignals-NSecondStageSignals);
