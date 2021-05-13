@@ -149,8 +149,10 @@ begin
 	begin
 		-- in the following Tests, we provide a new Instruction on the rising edge of the Clock (fetching it from the IR), and sample all the signals (i.e. in all the Pipeline Stages) on the falling edge
 		Reset <= '1';
+                expected_cw <= cw_matrix(0);
 		wait until rising_edge(clock);
 		Reset <= '0';
+                wait for ClkPeriod;
 		-- At the moment, the IR is sending out a NOP (opcode = "000000")
 		verify_results(TestCnt);
 

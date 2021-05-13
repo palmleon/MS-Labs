@@ -88,10 +88,10 @@ architecture beh of CU_FSM is
         RF_WR1      <= stage3(3);
         MEM_RD      <= stage3(2);
         MEM_WR      <= stage3(1);
-        MUX_SEL2    <= stage3(0);
+        MUX_SEL3    <= stage3(0);
 
         --process to update the state
-        process(CLK)
+        process(CLK, RST)
         begin
             if (RST = '1') then
                 curr_state <= reset;
@@ -102,7 +102,7 @@ architecture beh of CU_FSM is
             end if;
         end process;
 
-        process(curr_state)
+        process(curr_state, OPCODE, FUNC, cw)
         begin
             --default
             stage1 <= (others => '0');
