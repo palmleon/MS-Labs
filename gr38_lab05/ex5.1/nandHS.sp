@@ -4,10 +4,10 @@
 *.param MOSHS_DEV = 0
 
 * including MOS model (TODO change "../lib" with "$ST_HSPICE_LIB/CMOS013.spi" when submitting the Lab
-.lib '../lib/include_CMOS013.lib' CMOS013lib
+.lib '$ST_HSPICE_LIB/include_CMOS013.lib' CMOS013lib
 
 * including a small set of gates containing parasitics informations (TODO change "../lib" with "$ST_HSPICE_LIB/CMOS013.spi" when submitting the Lab
-.include '../lib/CMOS013.spi'
+.include '$ST_HSPICE_LIB/CMOS013.spi'
  
 *****************************************************
 
