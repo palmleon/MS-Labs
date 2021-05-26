@@ -1,0 +1,43 @@
+ND2HS - ND2LL comparison, Cload = 0.05fF:
+
+	RNAND        =  HS is 5.3% 	  lower  than LL 
+	FNAND        =  HS is 8.6% 	  higher than LL
+	HLPROPDELAY  =  HS is 33.8%   lower	 than LL
+	LHPROPDELAY  =  HS is 27.1%	  lower	 than LL
+	IPEAKHLGND   =  HS is 207.2%  higher than LL
+	IPEAKHLVDD   =  HS is 3.4% 	  lower	 than LL
+	IPEAKLHGND   =  HS is 1979.0% higher than LL
+	IPEAKLHVDD   =  HS is 1979.1% higher than LL
+
+ND2HS - ND2LL comparison, Cload = 50fF:
+
+	RNAND        =  HS is 		than LL
+	FNAND        =  HS is 		than LL
+	HLPROPDELAY  =  HS is 		than LL
+	LHPROPDELAY  =  HS is 		than LL
+	IPEAKHLGND   =  HS is 		than LL
+	IPEAKHLVDD   =  HS is 		than LL
+	IPEAKLHGND   =  HS is 		than LL
+	IPEAKLHVDD   =  HS is 		than LL
+
+ND2HSX8 - ND2LLX8 comparison, Cload = 0.05fF:
+
+	RNAND        =  HS is 		than LL
+	FNAND        =  HS is 		than LL
+	HLPROPDELAY  =  HS is 		than LL
+	LHPROPDELAY  =  HS is 		than LL
+	IPEAKHLGND   =  HS is 		than LL
+	IPEAKHLVDD   =  HS is 		than LL
+	IPEAKLHGND   =  HS is 		than LL
+	IPEAKLHVDD   =  HS is 		than LL
+
+ND2HSX8 - ND2LLX8 comparison, Cload = 50fF:
+
+	RNAND        =  HS is 		than LL
+	FNAND        =  HS is 		than LL
+	HLPROPDELAY  =  HS is 		than LL
+	LHPROPDELAY  =  HS is 		than LL
+	IPEAKHLGND   =  HS is 		than LL
+	IPEAKHLVDD   =  HS is 		than LL
+	IPEAKLHGND   =  HS is 		than LL
+	IPEAKLHVDD   =  HS is 		than LL
