@@ -65,8 +65,16 @@ Control Unit for a simplified version of the DLX datapath:
 
 ## Lab5
 
-// TODO: to be written
+Switch level analysis with ELDO:
+- Gate characterization for output load
+- Gate characterization for transition time
+- Comparison between gates of different size
+- Comparison between high speed and low leakage optimization
+- FF
 
 ## Lab6
 
-// TODO: to be written
+Physical Design using Innovus:
+- RCA (128 bit)
+- P4 adder (32 bit)
+- Booth's Multiplier
