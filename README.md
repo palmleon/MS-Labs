@@ -26,7 +26,11 @@
   - [requirements](gr38_lab04/lab4.pdf)
   - [solution](gr38_lab04)
 * [Lab5](#lab5)
+  - [requirements](gr38_lab05/lab5.pdf)
+  - [solution](gr38_lab05)
 * [Lab6](#lab6)
+  - [requirements](gr38_lab06/lab6.pdf)
+  - [solution](gr38_lab06)
 
 ## Team
 
