@@ -3,7 +3,7 @@ analyze -library WORK -format vhdl { syn/registerfile.vhd }
 analyze -library WORK -format vhdl { syn/RML.vhd }
 analyze -library WORK -format vhdl { syn/RMLwithRF.vhd }
 
-elaborate RMLwithRF -architecture Structure
+elaborate RMLWITHRF -architecture STRUCTURAL -parameters "NGlobal = 5, NBlockRegs = 4, NWindows = 5, NData = 8"
 compile
 
 report_timing > syn/reports/RMLwithRF_timing.rpt
