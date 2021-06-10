@@ -1,0 +1,1 @@
+/home/ms21.38/cap6c/MUL.sdc
