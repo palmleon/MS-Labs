@@ -1,0 +1,7 @@
+Timing: The timing report shows a small delay as critical paths only cross few logic gates.
+	In particular, the synthesized ALU is made up of many parallel units, but the actual computation performed at the level of the single functional unit is simple and requires to cross few gates.
+Area: 	As regards the area report, the number of sequential cells corresponds to the value assigned to the parameter N (4), which is equal to the number of flip-flops in the register that stores the result. 
+     	In this ALU, the function to apply is determined using a 4-bit signal, while both input operands and the result are on 4-bit too.
+	Since there are two input operands, the total number of ports is equal to 16, which corresponds to the value contained in the Area Report.
+
+Finally, it is possible to observe that the whole ALU is made up of combinatory modules but the register; this explains why the required combinatory area is way larger than the sequential one. 

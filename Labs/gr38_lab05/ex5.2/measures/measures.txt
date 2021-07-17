@@ -1,0 +1,76 @@
+run 1 out of 5:
+	PARAM LOAD = 5.0 e-18 F
+	
+	NAND_RTIM    = 67.226 ps  (rise time)
+	NAND_FTIM    = 68.511 ps  (fall time)
+	NAND_RDELAY  = 20.524 ps  (rise time)
+	NAND_FDELAY  = 37.948 ps  (fall time)
+	
+	MAX_IGNDF    =  76.530 uA   
+	MAX_IVDDF    = -47.912 uA   
+	MAX_ILOADF   = -126.03 nA   
+	MAX_IGNDR    =  45.879 uA   
+	MAX_IVDDR    = -70.006 uA   
+	MAX_ILOADR   =  115.10 nA
+ 
+run 2 out of 5:
+	PARAM LOAD = 5.0 e-17 F
+	
+	NAND_RTIM    =  67.604 ps
+	NAND_FTIM    =  68.830 ps
+	NAND_RDELAY  =  20.851 ps
+	NAND_FDELAY  =  38.286 ps
+	
+	MAX_IGNDF    =  77.056 uA   
+	MAX_IVDDF    = -47.680 uA   
+	MAX_ILOADF   = -1.2504 uA   
+	MAX_IGNDR    =  45.692 uA   
+	MAX_IVDDR    = -70.423 uA   
+	MAX_ILOADR   =  1.1429 uA
+	
+	
+run 3 out of 5:
+	PARAM LOAD = 5.0 e-16 F
+	
+	NAND_RTIM    =  71.228 ps
+	NAND_FTIM    =  72.112 ps
+	NAND_RDELAY  =  23.980 ps
+	NAND_FDELAY  =  41.521 ps
+	
+	MAX_IGNDF    =  81.964 uA   
+	MAX_IVDDF    = -45.637 uA   
+	MAX_ILOADF   = -11.637 uA
+	MAX_IGNDR    =  44.055 uA
+	MAX_IVDDR    = -74.383 uA
+	MAX_ILOADR   =  10.641 uA
+	
+		
+run 4 out of 5:
+	PARAM LOAD = 5.0 e-15 F
+	
+	NAND_RTIM    =  102.81 ps
+	NAND_FTIM    =  98.194 ps
+	NAND_RDELAY  =  48.550 ps
+	NAND_FDELAY  =  66.657 ps
+	
+	MAX_IGNDF    =  116.64 uA   
+	MAX_IVDDF    = -34.365 uA   
+	MAX_ILOADF   = -75.275 uA   
+	MAX_IGNDR    =  34.693 uA
+	MAX_IVDDR    = -10.277 uA   
+	MAX_ILOADR   =  67.574 uA
+		
+run 5 out of 5:
+	PARAM LOAD = 5.0 e-14 F
+	
+	NAND_RTIM    =  363.91 ps 
+	NAND_FTIM    =  296.52 ps 
+	NAND_RDELAY  =  180.16 ps
+	NAND_FDELAY  =  209.00 ps
+	
+	MAX_IGNDF    =  240.77 uA
+	MAX_IVDDF    = -11.039 uA
+	MAX_ILOADF   = -230.42 uA
+	MAX_IGNDR    =  12.571 uA
+	MAX_IVDDR    = -209.19 uA
+	MAX_ILOADR   =  199.72 uA

@@ -1,4 +1,0 @@
-The difference between the two gates is particularly noticeable in the high load case (Cload = 50fF), since the smallest gate is not able to drive it with sufficient speed. 
-The main reason why this difference occurs is in the size of the gates, and in particular of the transistor that compose them: all the transistors of the NANDX8 gate have double W with respect to the small NAND gate, which implies a higher current driving capability. 
-Being able to drive higher currents, the gate charges the load much faster, thus not suffering from such a high load.
-However, in case of a small load (case where Cload = 0.05fF), there is not a noticeable difference in delay between the two gates, but the short-circuit current is much larger for the NANDX8: using wider gates for small loads increases power consumption without improving delay noticeably; this means that it is more optimal to use a smaller gate in that case.
