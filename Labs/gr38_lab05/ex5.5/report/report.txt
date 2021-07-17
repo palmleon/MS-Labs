@@ -1,0 +1,3 @@
+We can notice that the LL gates provide lower currents since they are designed to have a higher threshold voltage and have a lower current driving capability, thus implying higher propagation delay as more time is required to charge the load.
+However, it is for this reason that LL gates can save switching power, reducing the short-circuit current.
+Moreover, LL gates have lower leakage currents since they have a higher threshold voltage, further reducing power dissipation.

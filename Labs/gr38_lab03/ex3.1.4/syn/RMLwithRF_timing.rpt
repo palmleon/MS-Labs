@@ -1,0 +1,47 @@
+Information: Updating design information... (UID-85)
+Warning: Design 'RMLwithRF_NGlobal5_NBlockRegs4_NWindows5_NData8' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : RMLwithRF_NGlobal5_NBlockRegs4_NWindows5_NData8
+Version: F-2011.09-SP3
+Date   : Tue Jun  8 15:03:44 2021
+****************************************
+
+ # A fanout number of 1000 was used for high fanout net computations.
+
+Operating Conditions: typical   Library: NangateOpenCellLibrary
+Wire Load Model Mode: top
+
+  Startpoint: RegisterMgmtLogic/CurrState_reg[0]
+              (rising edge-triggered flip-flop)
+  Endpoint: ackOUT (output port)
+  Path Group: (none)
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  RMLwithRF_NGlobal5_NBlockRegs4_NWindows5_NData8
+                     5K_hvratio_1_1        NangateOpenCellLibrary
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  RegisterMgmtLogic/CurrState_reg[0]/clocked_on (**SEQGEN**)
+                                                          0.00       0.00 r
+  RegisterMgmtLogic/CurrState_reg[0]/Q (**SEQGEN**)       0.00       0.00 r
+  RegisterMgmtLogic/I_37/Z (GTECH_NOT)                    0.01       0.01 f
+  RegisterMgmtLogic/C359/Z (GTECH_OR2)                    0.00       0.01 f
+  RegisterMgmtLogic/C360/Z (GTECH_OR2)                    0.00       0.01 f
+  RegisterMgmtLogic/I_42/Z (GTECH_NOT)                    0.00       0.01 r
+  RegisterMgmtLogic/B_69/Z (GTECH_BUF)                    0.00       0.02 r
+  RegisterMgmtLogic/ackOUT (RML_M5_N4_F5)                 0.00       0.02 r
+  ackOUT (out)                                            0.01       0.02 r
+  data arrival time                                                  0.02
+  --------------------------------------------------------------------------
+  (Path is unconstrained)
+
+
+1

@@ -1,0 +1,44 @@
+Eldo measurements for NAND (Cload = 0.05fF):
+
+	RNAND        =  6.7604E-11 s
+  	FNAND        =  6.8830E-11 s
+  	HLPROPDELAY  =  2.0851E-11 s 
+  	LHPROPDELAY  =  3.8286E-11 s 
+  	IPEAKHLGND   =  9.4317E-06 A   
+  	IPEAKHLVDD   =  5.7835E-06 A  
+  	IPEAKLHGND   =  8.2877E-09 A 
+  	IPEAKLHVDD   = -8.2876E-09 A 
+
+
+Eldo measurements for NAND (Cload = 50fF):
+
+	RNAND        =  3.6391E-10 s
+	FNAND        =  2.9652E-10 s 
+	HLPROPDELAY  =  1.8016E-10 s 
+	LHPROPDELAY  =  2.0900E-10 s 
+	IPEAKHLGND   =  2.4077E-04 A 
+	IPEAKHLVDD   =  3.3952E-06 A 
+	IPEAKLHGND   =  1.2571E-05 A
+	IPEAKLHVDD   = -1.2547E-08 A 
+
+Eldo measurements for NANDX8 (Cload = 0.05fF):
+
+	RNAND        =  6.2179E-11 s
+  	FNAND        =  6.3836E-11 s
+  	HLPROPDELAY  =  1.7455E-11 s
+  	LHPROPDELAY  =  3.1347E-11 s
+  	IPEAKHLGND   =  5.5076E-05 A 
+  	IPEAKHLVDD   =  4.5153E-05 A  
+  	IPEAKLHGND   =  7.9078E-08 A 
+  	IPEAKLHVDD   = -7.9078E-08 A
+
+Eldo measurements for NANDX8 (Cload = 50fF):
+
+	RNAND        =  1.0546E-10 s
+  	FNAND        =  1.0084E-10 s
+  	HLPROPDELAY  =  5.2118E-11 s
+  	LHPROPDELAY  =  6.6819E-11 s
+  	IPEAKHLGND   =  2.8256E-04 A
+  	IPEAKHLVDD   =  4.1247E-05 A
+  	IPEAKLHGND   =  1.2301E-04 A
+  	IPEAKLHVDD   = -7.9079E-08 A

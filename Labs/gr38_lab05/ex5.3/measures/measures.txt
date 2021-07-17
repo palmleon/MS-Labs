@@ -1,0 +1,74 @@
+run 1 out of 5:
+	T_TRAN = 4.8 e-12 s
+	
+	NAND_RTIM    =  16.917 ps
+	NAND_FTIM    =  14.226 ps
+	NAND_RDELAY  =  10.486 ps
+	NAND_FDELAY  =  11.520 ps
+
+	MAX_IGNDF    =  318.29 uA   
+	MAX_IVDDF    = -88.918 uA   
+	MAX_ILOADF   = -2.8519 uA   
+	MAX_IGNDR    =  63.267 uA
+	MAX_IVDDR    = -343.58 uA
+	MAX_ILOADR   =  2.7433 uA
+	
+run 2 out of 5:
+	T_TRAN = 1.088 e-10 s
+	
+	NAND_RTIM    =  38.548 ps
+	NAND_FTIM    =  36.956 ps
+	NAND_RDELAY  =  18.417 ps
+	NAND_FDELAY  =  25.686 ps
+
+	MAX_IGNDF    =  96.350 uA
+	MAX_IVDDF    = -41.051 uA
+	MAX_ILOADF   = -1.1520 uA   
+	MAX_IGNDR    =  37.061 uA
+	MAX_IVDDR    = -85.379 uA
+	MAX_ILOADR   =  1.0233 uA
+		
+run 3 out of 5:
+	T_TRAN = 2.608 e-10 s
+	
+	NAND_RTIM    =  67.428 ps
+	NAND_FTIM    =  68.692 ps
+	NAND_RDELAY  =  20.691 ps
+	NAND_FDELAY  =  38.121 ps
+	
+	MAX_IGNDF    =  76.801 uA
+	MAX_IVDDF    = -47.793 uA
+	MAX_ILOADF   = -702.94 nA
+	MAX_IGNDR    =  45.783 uA
+	MAX_IVDDR    = -70.220 uA
+	MAX_ILOADR   =  642.28 nA
+		
+run 4 out of 5:
+	T_TRAN = 5.248 e-10 s
+	
+	NAND_RTIM    =  114.69 ps
+	NAND_FTIM    =  119.09 ps
+	NAND_RDELAY  =  19.663 ps
+	NAND_FDELAY  =  54.304 ps
+	
+	MAX_IGNDF    =  68.438 uA
+	MAX_IVDDF    = -50.970 uA
+	MAX_ILOADF   = -453.35 nA
+	MAX_IGNDR    =  49.651 uA
+	MAX_IVDDR    = -64.306 uA
+	MAX_ILOADR   =  420.29 nA
+		
+run 5 out of 5:
+	T_TRAN = 1.0 e-9 s
+	
+	NAND_RTIM    =  202.11 ps
+	NAND_FTIM    =  205.57 ps
+	NAND_RDELAY  =  12.719 ps
+	NAND_FDELAY  =  77.530 ps
+	
+	MAX_IGNDF    =  63.788 uA
+	MAX_IVDDF    = -52.861 uA
+	MAX_ILOADF   = -292.92 nA
+	MAX_IGNDR    =  51.872 uA
+	MAX_IVDDR    = -61.184 uA
+	MAX_ILOADR   =  274.13 nA
