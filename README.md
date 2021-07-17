@@ -42,6 +42,8 @@
 
 [ REDACTED ]
 
+## Labs
+
 ###	Lab1
 
 VHDL and Synthesis
