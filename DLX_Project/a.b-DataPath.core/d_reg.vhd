@@ -1,6 +1,6 @@
 library ieee;
-use ieee_std_logic_1164.all
-use work.myGlobals.all
+use ieee.std_logic_1164.all;
+use work.myGlobals.all;
 
 entity D_Reg is					-- Generic D Register with synch. reset
 	generic
