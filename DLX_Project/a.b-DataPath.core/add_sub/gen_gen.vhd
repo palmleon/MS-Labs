@@ -1,11 +1,10 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.ALL;
-use WORK.constants.all;
 
 entity Gen_Gen is
     generic (
-		GDELAY : time := 2*IVDELAY + NRDELAY + NDDELAY
+		GDELAY : time := 0 ns
 	);
     port (
 		Pik, Gik, Gmj:	IN	std_logic;	-- m = k-1 by definition

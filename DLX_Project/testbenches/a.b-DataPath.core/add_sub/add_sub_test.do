@@ -10,7 +10,8 @@ vcom ../../../a.b-DataPath.core/add_sub/carry_generator.vhd
 vcom ../../../a.b-DataPath.core/add_sub/sum_generator.vhd
 vcom ../../../a.b-DataPath.core/add_sub/p4_adder.vhd
 vcom ../../../a.b-DataPath.core/add_sub/add_sub.vhd
+vcom add_sub_tb.vhd
 if { [ string match $1 "test_yes"] } {
-	vsim work.tb_add_sub(test) -t 100ps
+	vsim work.add_sub_tb(test) -t 100ps
 }
 

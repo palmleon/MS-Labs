@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.math_real.all;
-use WORK.constants.all;
+use WORK.myGlobals.all;
 
 entity P4_ADDER is
     generic 
@@ -24,8 +24,8 @@ architecture structural of P4_ADDER is
 
     component carry_generator is
         generic (
-            NBIT :	       integer := NBIT;
-            NBIT_PER_BLOCK:    integer := NBIT_PER_BLOCK);
+            NBIT :	       	   integer := DATASIZE;
+            NBIT_PER_BLOCK:    integer := DATASIZE);
         port (
             A :		in	std_logic_vector(NBIT-1 downto 0);
             B :		in	std_logic_vector(NBIT-1 downto 0);
@@ -56,7 +56,8 @@ architecture structural of P4_ADDER is
         carries(0) <= Ci;
 
         --carry generator, generates all carries needed
-        CarryG: carry_generator port map(A, B, Ci, carries(N downto 1));
+        CarryG: carry_generator generic map (NBIT => NBIT, NBIT_PER_BLOCK => NBIT_PER_BLOCK)
+								port map(A, B, Ci, carries(N downto 1));
 
         --sum generator
         SumG: sum_generator port map(A, B, carries(N-1 downto 0), S);

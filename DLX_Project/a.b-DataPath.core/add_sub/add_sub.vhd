@@ -36,7 +36,16 @@ architecture structural of Add_sub is
 			);
 	end component P4_adder;
 
-	signal B_muxed: std_logic_vector (NBIT-1 downto 0);
+	component Mux2to1 is
+		generic 
+			( N: integer := DATASIZE );
+		port
+			( in1, in2: in std_logic_vector (N-1 downto 0);
+			  sel: in std_logic;
+			  output: out std_logic_vector (N-1 downto 0)); 
+	end component Mux2to1;
+
+	signal not_B, B_muxed: std_logic_vector (NBIT-1 downto 0);
 
 begin
 
@@ -44,6 +53,8 @@ begin
 					port map (A => A, B => B_muxed, Ci => op, S => S, Co => Co);
 
 	AdderMux: Mux2to1 generic map (N => NBIT) 
-					  port map (in1 => B, in2 => not(B), sel => op, output => B_muxed);
+					  port map (in1 => B, in2 => not_B, sel => op, output => B_muxed);
+
+	not_B <= not(B);
 
 end structural;

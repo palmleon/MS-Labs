@@ -1,13 +1,12 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
-use WORK.constants.all;
 
 entity RCA is
     generic (
         DRCAS : time    := 0 ns;
         DRCAC : time    := 0 ns;
-        N     : integer := NumBit
+        N     : integer := 2
     );
 
     port (

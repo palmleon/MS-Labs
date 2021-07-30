@@ -2,12 +2,12 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.ALL;
 use IEEE.math_real.all;
-use WORK.constants.all;
+use WORK.myGlobals.all;
 
 entity carry_generator is
 	generic (
-		NBIT :				integer := numBit;
-		NBIT_PER_BLOCK:	 	integer := (numBit / 4));
+		NBIT :				integer := DATASIZE;
+		NBIT_PER_BLOCK:	 	integer := DATASIZE);
 	port (
 		A :		in	std_logic_vector(NBIT-1 downto 0);
 		B :		in	std_logic_vector(NBIT-1 downto 0);
@@ -23,8 +23,8 @@ architecture structural of carry_generator is
 
 	component PGnet_block is
 		generic (
-			PDELAY:		time := 3*NDDELAY;
-			GDELAY:		time := NDDELAY + IVDELAY);
+			PDELAY:		time := 0 ns;
+			GDELAY:		time := 0 ns);
 		port (
 			A :			in	std_logic;
 			B :			in	std_logic;
@@ -33,7 +33,7 @@ architecture structural of carry_generator is
 
 	component Gen_Gen is
 		generic (
-			GDELAY : time := 2*IVDELAY + NRDELAY + NDDELAY);
+			GDELAY : time := 0 ns);
 		port (
 			Pik, Gik, Gmj:	IN	std_logic;	-- m = k-1 by definition
 			Gij:			OUT	std_logic);
@@ -41,8 +41,8 @@ architecture structural of carry_generator is
 
 	component Gen_Prop is
 		generic (
-		    PDELAY : time := IVDELAY + NDDELAY;
-			GDELAY : time := 2*IVDELAY + NRDELAY + NDDELAY);
+		    PDELAY : time := 0 ns;
+			GDELAY : time := 0 ns);
 		port (
 			Pik, Gik, Pmj, Gmj:	IN	std_logic;	-- m = k-1 by definition
 			Pij, Gij:			OUT	std_logic);

@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.std_logic_unsigned.all;
 use IEEE.math_real.all;
-use WORK.constants.all;
+use WORK.myGlobals.all;
 
 entity SUM_GENERATOR is
   generic 
@@ -42,8 +42,8 @@ architecture behavioral of SUM_GENERATOR is
               S1 <= A(i*N+(N-1) downto i*N) + B(i*N+(N-1) downto i*N) + '1';
           
               case Ci(i) is
-                  when '0' => S(i*N+(N-1) downto i*N) <= S0 after TP_MUX;
-                  when others => S(i*N+(N-1) downto i*N) <= S1 after TP_MUX;
+                  when '0' => S(i*N+(N-1) downto i*N) <= S0;
+                  when others => S(i*N+(N-1) downto i*N) <= S1;
               end case;
               
           end loop;
@@ -54,8 +54,8 @@ architecture behavioral of SUM_GENERATOR is
               S1(LAST_SIZE-1 downto 0) <= A(NBIT-1 downto NBIT-LAST_SIZE-1) + B(NBIT-1 downto NBIT-LAST_SIZE-1) + '1';
               
               case Ci(NBLOCKS_ROUNDED) is
-                  when '0' => S(NBIT-1 downto NBIT-LAST_SIZE-1) <= S0(LAST_SIZE-1 downto 0) after TP_MUX;
-                  when others => S(NBIT-1 downto NBIT-LAST_SIZE-1) <= S1(LAST_SIZE-1 downto 0) after TP_MUX;
+                  when '0' => S(NBIT-1 downto NBIT-LAST_SIZE-1) <= S0(LAST_SIZE-1 downto 0);
+                  when others => S(NBIT-1 downto NBIT-LAST_SIZE-1) <= S1(LAST_SIZE-1 downto 0);
               end case;
           end if;
 
@@ -72,9 +72,11 @@ architecture structural of SUM_GENERATOR is
   component CARRY_SEL_BLOCK is
       generic 
       (
-          DRCAS : time    := DRCAS;
-          DRCAC : time    := DRCAC;
-          N     : integer := NBIT_PER_BLOCK    
+          TP_MUX: time	   := 0 ns;
+          DRCAS : time     := 0 ns;
+          DRCAC : time     := 0 ns;
+		  DELAY_MUX : time := 0 ns;
+          N     : integer  := 2 
       );
       port 
       (
@@ -106,6 +108,7 @@ begin
   
   BLOCKSgen: for i in 0 to NBLOCKS_ROUNDED-1 generate
       CSBi: CARRY_SEL_BLOCK
+		generic map (N => N)
         port map(A(i*N+(N-1) downto i*N), B(i*N+(N-1) downto i*N), Ci(i), S(i*N+(N-1) downto i*N));
   end generate;
 

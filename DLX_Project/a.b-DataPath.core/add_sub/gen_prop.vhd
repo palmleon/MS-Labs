@@ -1,12 +1,11 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.ALL;
-use WORK.constants.all;
 
 entity Gen_Prop is
     generic (
-        PDELAY : time := IVDELAY + NDDELAY;
-		GDELAY : time := 2*IVDELAY + NRDELAY + NDDELAY
+        PDELAY : time := 0 ns;
+		GDELAY : time := 0 ns
 	);
     port (
 		Pik, Gik, Pmj, Gmj:	IN	std_logic;	-- m = k-1 by definition

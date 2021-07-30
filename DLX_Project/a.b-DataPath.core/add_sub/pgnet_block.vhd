@@ -1,11 +1,10 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use WORK.constants.all;
 
 entity PGnet_block is
 	generic (
-		PDELAY:		time := 3*NDDELAY;
-		GDELAY:		time := NDDELAY + IVDELAY);
+		PDELAY:		time := 0 ns;
+		GDELAY:		time := 0 ns);
 	port (
 		A :			in	std_logic;
 		B :			in	std_logic;
