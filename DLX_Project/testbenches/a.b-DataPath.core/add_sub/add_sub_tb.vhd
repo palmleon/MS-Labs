@@ -42,7 +42,7 @@ architecture test of add_sub_tb is
 		);
 	constant expected_outputs: expected_outputs_type := (
 		'0' & X"11", '0' & X"7D", '0' & X"97", '1' & X"00", '1' & X"FE", 
-		'0' & X"00", '0' & X"1A", '1' & X"FF", '1' & X"E1", '1' & X"01"
+		'1' & X"00", '1' & X"1A", '0' & X"FF", '0' & X"E1", '1' & X"01"
 		);
 
 begin
