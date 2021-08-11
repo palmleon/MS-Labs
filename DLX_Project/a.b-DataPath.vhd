@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.myGlobals.all;
 
 entity DP is
@@ -47,13 +48,13 @@ architecture structural of DP is
         component NPC_adder is
             generic
             (
-                N : integer := N;  --register number of bits
-                I : integer := 4    --instruction lenght
+                N : integer := DATASIZE;  --register number of bits
+                I : integer := 4    --instruction length
             );
             port
             (
-                PC : unsigned(N-1 downto 0); --input
-                NPC : out unsigned(N-1 downto 0) --output
+                PC : in std_logic_vector(N-1 downto 0); --input
+                NPC : out std_logic_vector(N-1 downto 0) --output
             );
         end component;
 
@@ -87,9 +88,9 @@ architecture structural of DP is
         component register_file is
             generic
             (
-               NData : integer;
-               NRegs : integer; 
-               NAddr : integer
+               NData : integer := DATASIZE;
+               NRegs : integer := 32; 
+               NAddr : integer := 5
             );
             port 
             (
@@ -128,7 +129,10 @@ architecture structural of DP is
 
 		--- EXECUTION STAGE SIGNALS ---
 
-		signal ALU_inA, ALU_inB, ALU_out_bus, reg_ALU_out: std_logic_vector (DATASIZE-1 downto 0); 
+		signal ALU_inA : std_logic_vector (DATASIZE-1 downto 0); 
+		signal ALU_inB : std_logic_vector (DATASIZE-1 downto 0); 
+		signal ALU_out_bus : std_logic_vector (DATASIZE-1 downto 0); 
+		signal reg_ALU_out : std_logic_vector (DATASIZE-1 downto 0); 
 		
 		--- MEMORY STAGE SIGNALS ---
 		
@@ -156,24 +160,23 @@ architecture structural of DP is
         --- INSTRUCTION DECODE ---
 
         --register file
-        RF : register_file port map(clk, rst, RF_en, rf_rd1, rf_rd2, rf_wr, reg_IR_out(15 downto 11), reg_IR_out(25 downto 21), IR(20 downto 16), WB_out, reg_A_in, reg_B_in);
+        RF : register_file port map(clk, rst, RF_en, rf_rd1, rf_rd2, rf_wr, reg_IR_out(15 downto 11), reg_IR_out(25 downto 21), reg_IR_out(20 downto 16), WB_out, reg_A_in, reg_B_in);
 
         --Op registers
         reg_A : D_Reg port map(clk, rst, OP_en, reg_A_in, reg_A_out);
         reg_B : D_Reg port map(clk, rst, OP_en, reg_B_in, reg_B_out);
 
         --sign extender
-        Sign_ext :  SignExtender port map(reg_IR_out(15 downto 0), reg_Imm_in);
+        Sign_ext : SignExtender port map(reg_IR_out(15 downto 0), reg_Imm_in);
 
         --Imm register
         Imm_reg : D_Reg port map(clk, rst, Imm_en, reg_Imm_in, reg_Imm_out);
 
 		--- EXECUTION STAGE ---
 
-		-- TODO branch management datapath
 		Mux_ALUinA: Mux2to1 port map (in1 => reg_NPC_out, in2 => reg_A_out, sel => ALUinA_sel, output => ALU_inA);
 		Mux_ALUinB: Mux2to1 port map (in1 => reg_B_out, in2 => reg_Imm_out, sel => ALUinB_sel, output => ALU_inB);
-		ALU : ALU port map (inA => ALU_inA, inB => ALU_inB, op_sel => ALU_op_sel, output => ALU_out_bus);
+		ALU_Int : ALU port map (inA => ALU_inA, inB => ALU_inB, op_sel => ALU_op_sel, output => ALU_out_bus);
 		reg_ALU: D_Reg port map (rst => rst, clk => clk, en => reg_ALU_en, D => ALU_out_bus, Q => reg_ALU_out);
 
 		--- MEMORY STAGE ---
@@ -184,7 +187,7 @@ architecture structural of DP is
 		LMD : D_Reg port map (rst => rst, clk => clk, en => reg_LMD_en, D => DataMem_out, Q => reg_LMD_out);
 
         --Branch mux  --fixed to process always the next instruction
-        Mux_branch: Mux2to1 port map (reg_NPC_out, reg_ALU_out, sel => "0", reg_PC_in);
+        Mux_branch: Mux2to1 port map (in1 => reg_NPC_out, in2 => reg_ALU_out, sel => '0', output => reg_PC_in);
 
 		--- WRITEBACK STAGE ---
 

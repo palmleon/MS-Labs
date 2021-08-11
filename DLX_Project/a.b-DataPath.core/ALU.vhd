@@ -43,6 +43,6 @@ begin
 
 	-- TODO: latch the adder enable to optimize power consumption
  
-	output <= adder_output; -- TODO TO REMOVE WHEN ADDITIONAL FUNCTIONAL UNIT ARE IMPLEMENTED
+	output <= addsub_output; -- TODO TO REMOVE WHEN ADDITIONAL FUNCTIONAL UNIT ARE IMPLEMENTED
 
 end structural;

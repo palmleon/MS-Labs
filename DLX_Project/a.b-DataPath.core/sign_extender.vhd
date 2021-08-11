@@ -2,8 +2,6 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-use WORK.constants.all;
-
 entity SignExtender is
     generic 
     (
@@ -17,7 +15,7 @@ entity SignExtender is
     );
 end entity;
 
-architecture structural of SignExtender is:
+architecture structural of SignExtender is
 begin
     O(M-1 downto M-N) <= (others => I(N-1));
     O(N-1 downto 0) <= I;
