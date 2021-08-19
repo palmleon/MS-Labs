@@ -71,6 +71,9 @@ begin
 	end if;
   end process Read_Proc;
 
+  -- registers[0] contains an HW zero vector
+  registers(0) <= (others => '0');
+
 end A;
 
 ----

@@ -8,12 +8,14 @@ entity DP is
 		(rst, clk: in std_logic;
 		 reg_ALU_en, reg_LMD_en: in std_logic;
          RF_en, RF_rd1, RF_rd2, RF_wr : in std_logic;
-         PC_en, NPC_en, IR_en, OP_en, Imm_en : in std_logic;
+		 reg_delay1_en, reg_delay2_en, reg_delay3_en: in std_logic;
+         IF_en, Waddr_sel, A_en, B_en, Imm_en : in std_logic;
 		 ALUinA_sel, ALUinB_sel: in std_logic;
 		 ALU_op_sel: in std_logic_vector (OPCSIZE-1 downto 0);
+		 Branch_sel: in std_logic;
 		 WB_sel: in std_logic;
-		 DataMem_out: in std_logic_vector (DATASIZE-1 downto 0);
-		 DataMem_addr, DataMem_data: out std_logic_vector (DATASIZE-1 downto 0));
+		 D_Mem_out: in std_logic_vector (DATASIZE-1 downto 0);
+		 D_Mem_addr, D_Mem_data: out std_logic_vector (DATASIZE-1 downto 0));
 end DP;
 
 architecture structural of DP is
@@ -120,6 +122,12 @@ architecture structural of DP is
 
         --- INSTRUCTION DECODE SIGNALS ---
         
+		signal reg_delay1_in : std_logic_vector (DATASIZE-1 downto 0); -- delay registers to postpone Write address arrival to RF
+		signal reg_delay1_out : std_logic_vector (DATASIZE-1 downto 0);
+		signal reg_delay2_in : std_logic_vector (DATASIZE-1 downto 0);
+		signal reg_delay2_out : std_logic_vector (DATASIZE-1 downto 0);
+		signal reg_delay3_in : std_logic_vector (DATASIZE-1 downto 0);
+		signal reg_delay3_out : std_logic_vector (DATASIZE-1 downto 0);
         signal reg_A_in : std_logic_vector (DATASIZE-1 downto 0);
         signal reg_A_out : std_logic_vector (DATASIZE-1 downto 0);
         signal reg_B_in : std_logic_vector (DATASIZE-1 downto 0);
@@ -147,9 +155,9 @@ architecture structural of DP is
         --- INSTRUCTION FETCH ---
         
         --PC, NPC, IR
-        PC :  D_Reg port map(clk, rst, PC_en, reg_PC_in, reg_PC_out);
-        NPC : D_Reg port map(clk, rst, NPC_en, reg_NPC_in, reg_NPC_out);
-        IR :  D_Reg port map(clk, rst, IR_en, reg_IR_in, reg_IR_out);
+        PC :  D_Reg port map(clk, rst, IF_en, reg_PC_in, reg_PC_out);
+        NPC : D_Reg port map(clk, rst, IF_en, reg_NPC_in, reg_NPC_out);
+        IR :  D_Reg port map(clk, rst, IF_en, reg_IR_in, reg_IR_out);
 
         --NPC adder
         NPC_add : NPC_adder port map(reg_PC_out, reg_NPC_in);
@@ -159,12 +167,20 @@ architecture structural of DP is
 
         --- INSTRUCTION DECODE ---
 
+		-- write address selector and delay registers
+		Mux_Waddr : Mux2to1 port map (in1 => reg_IR_out(15 downto 11), in2 => reg_IR_out(20 downto 16), sel => Waddr_sel, output => reg_delay1_in);
+		DelayReg1 : D_Reg port map(clk, rst, reg_delay1_en, reg_delay1_in, reg_delay1_out);
+		reg_delay2_in <= reg_delay1_out;
+		DelayReg2 : D_Reg port map(clk, rst, reg_delay2_en, reg_delay2_in, reg_delay2_out);
+		reg_delay3_in <= reg_delay2_out;
+		DelayReg3 : D_Reg port map(clk, rst, reg_delay3_en, reg_delay3_in, reg_delay3_out);
+
         --register file
-        RF : register_file port map(clk, rst, RF_en, rf_rd1, rf_rd2, rf_wr, reg_IR_out(15 downto 11), reg_IR_out(25 downto 21), reg_IR_out(20 downto 16), WB_out, reg_A_in, reg_B_in);
+        RF : register_file port map(clk, rst, RF_en, rf_rd1, rf_rd2, rf_wr, reg_delay3_out, reg_IR_out(25 downto 21), reg_IR_out(20 downto 16), WB_out, reg_A_in, reg_B_in);
 
         --Op registers
-        reg_A : D_Reg port map(clk, rst, OP_en, reg_A_in, reg_A_out);
-        reg_B : D_Reg port map(clk, rst, OP_en, reg_B_in, reg_B_out);
+        reg_A : D_Reg port map(clk, rst, A_en, reg_A_in, reg_A_out);
+        reg_B : D_Reg port map(clk, rst, B_en, reg_B_in, reg_B_out);
 
         --sign extender
         Sign_ext : SignExtender port map(reg_IR_out(15 downto 0), reg_Imm_in);
@@ -182,12 +198,12 @@ architecture structural of DP is
 		--- MEMORY STAGE ---
 
 		-- Data Memory is defined in a separate entity
-		DataMem_addr <= reg_ALU_out;
-		DataMem_data <= reg_B_out;
-		LMD : D_Reg port map (rst => rst, clk => clk, en => reg_LMD_en, D => DataMem_out, Q => reg_LMD_out);
+		D_Mem_addr <= reg_ALU_out;
+		D_Mem_data <= reg_B_out;
+		LMD : D_Reg port map (rst => rst, clk => clk, en => reg_LMD_en, D => D_Mem_out, Q => reg_LMD_out);
 
         --Branch mux  --fixed to process always the next instruction
-        Mux_branch: Mux2to1 port map (in1 => reg_NPC_out, in2 => reg_ALU_out, sel => '0', output => reg_PC_in);
+        Mux_branch: Mux2to1 port map (in1 => reg_NPC_out, in2 => reg_ALU_out, sel => Branch_sel, output => reg_PC_in);
 
 		--- WRITEBACK STAGE ---
 
