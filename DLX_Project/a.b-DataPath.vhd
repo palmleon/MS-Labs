@@ -11,7 +11,7 @@ entity DP is
 		 reg_delay1_en, reg_delay2_en, reg_delay3_en: in std_logic;
          IF_en, Waddr_sel, A_en, B_en, Imm_en : in std_logic;
 		 ALUinA_sel, ALUinB_sel: in std_logic;
-		 ALU_op_sel: in std_logic_vector (OPCSIZE-1 downto 0);
+		 ALUop_sel: in std_logic_vector (OPCSIZE-1 downto 0);
 		 Branch_sel: in std_logic;
 		 WB_sel: in std_logic;
 		 D_Mem_out: in std_logic_vector (DATASIZE-1 downto 0);
@@ -192,7 +192,7 @@ architecture structural of DP is
 
 		Mux_ALUinA: Mux2to1 port map (in1 => reg_NPC_out, in2 => reg_A_out, sel => ALUinA_sel, output => ALU_inA);
 		Mux_ALUinB: Mux2to1 port map (in1 => reg_B_out, in2 => reg_Imm_out, sel => ALUinB_sel, output => ALU_inB);
-		ALU_Int : ALU port map (inA => ALU_inA, inB => ALU_inB, op_sel => ALU_op_sel, output => ALU_out_bus);
+		ALU_Int : ALU port map (inA => ALU_inA, inB => ALU_inB, op_sel => ALUop_sel, output => ALU_out_bus);
 		reg_ALU: D_Reg port map (rst => rst, clk => clk, en => reg_ALU_en, D => ALU_out_bus, Q => reg_ALU_out);
 
 		--- MEMORY STAGE ---

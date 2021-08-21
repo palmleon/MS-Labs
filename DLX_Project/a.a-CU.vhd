@@ -5,12 +5,12 @@ use work.myGlobals.all;
 
 entity CU is
   port (		 
-       RF_en  : out std_logic;               -- enables the register file (combination of the RF_en at Decode Stage and at WB Stage)
+       RF_en  		 : out std_logic;        -- enables the register file (combination of the RF_en at Decode Stage and at WB Stage)
        -- FIRST PIPE STAGE OUTPUTS (IF)
-	   IF_en  : out std_logic;				 -- enables the PC, the NPC and the Instruction Memory
+	   IF_en  		 : out std_logic;		 -- enables the PC, the NPC and the Instruction Memory
        -- SECOND PIPE STAGE OUTPUTS (DEC)
-	   RF_rd1 : out std_logic;               -- enables the read port 1 of the register file
-       RF_rd2 : out std_logic;               -- enables the read port 2 of the register file
+	   RF_rd1 		 : out std_logic;        -- enables the read port 1 of the register file
+       RF_rd2 		 : out std_logic;        -- enables the read port 2 of the register file
 	   waddr_sel 	 : out std_logic;		 -- selects the write address input of the register file (it will reach the reg.file 3 clk cycles later)
        reg_delay1_en : out std_logic;		 -- enables the first delay register for the write address input
 	   A_en			 : out std_logic;		 -- enables the A register
@@ -21,16 +21,16 @@ entity CU is
 	   ALUinB_sel	 : out std_logic;		 -- selects the second ALU input
 	   ALUop_sel	 : out std_logic_vector(ALUOPCSIZE-1 downto 0); -- selects the ALU operation to perform
 	   reg_delay2_en : out std_logic;		 -- enables the second delay register for the write address input
-	   reg_ALU_en	: out std_logic;		 -- enables the ALU register
+	   reg_ALU_en	 : out std_logic;		 -- enables the ALU register
 	   -- FOURTH PIPE STAGE OUTPUTS (MEM)
 	   branch_sel	 : out std_logic;		 -- selects whether a branch is taken or not
 	   reg_delay3_en : out std_logic;		 -- enables the third delay register for the write address input
-	   DMem_en		: out std_logic;         -- enables the read-out of the memory
-       DMem_wr		: out std_logic;         -- enables the write-in of the memory
-	   reg_LMD_en	: out std_logic;		 -- enables the Load Memory Data register
+	   DMem_en		 : out std_logic;        -- enables the read-out of the memory
+       DMem_wr		 : out std_logic;        -- enables the write-in of the memory
+	   reg_LMD_en	 : out std_logic;		 -- enables the Load Memory Data register
 	   -- FIFTH PIPE STAGE OUTPUTS (WB)
-	   WB_sel		: out std_logic;		 -- selector for the WB mux
-	   RF_wr		: out std_logic;		 -- enables the write port of the register file
+	   WB_sel		 : out std_logic;		 -- selector for the WB mux
+	   RF_wr		 : out std_logic;		 -- enables the write port of the register file
        -- INPUTS
        OPCODE : in  std_logic_vector(OPCSIZE - 1 downto 0);
        FUNC   : in  std_logic_vector(FUNCSIZE - 1 downto 0);              
@@ -39,69 +39,129 @@ entity CU is
 end CU;
 
 architecture Beh of CU is
-	constant CW_SIZE: integer := 21;
+	constant NCtrlSignals: integer := 20;
+	constant CW_SIZE: integer := NCtrlSignals + ALUOPCSIZE;
 	constant NOpcodes: integer := 62;
 	constant NDecodeStageSignals: integer := 8;
-	constant NExeStageSignals: integer := ALUOPCSIZE + 4;
+	constant NExeStageSignals: integer := 4 + ALUOPCSIZE;	
 	constant NMemStageSignals: integer := 5;
-	constant NWBStageSignals: integer  := 2;
+	constant NWBStageSignals: integer  := 3;
 
-	-- TODO FROM HERE: update Memory Content, build CW signal DP and route everything, then configure CW for add/sub/addi/subi/addu/subu
-	type	 MemoryType is array(0 to NOpcodes-1) of std_logic_vector(CW_SIZE-ALU_OPC_SIZE-1 downto 0);
-  	constant LUT: MemoryType := 
-				("00000000000", -- NOP
-				 "11110100111", -- RTYPE (ADD, SUB, AND, OR share the same signals but the ALU Opcode)
-				 "01100100111", -- ADDI1
-				 "01100100111", -- SUBI1 (Because of the DP structure, we suppose that SUBI1 executes R[RB] = INP1 - R[RA] (The ALU cannot invert operands)
-				 "01100100111", -- ANDI1
-				 "01100100111", -- ORI1
-				 "10111100111", -- ADDI2
-				 "10111100111", -- SUBI2
-				 "10111100111", -- ANDI2
-				 "10111100111", -- ORI2
-				 "10111100111", -- MOV (actually, it is identical to an ADDI2, but it is guaranteed that INP2 = 0)
-				 "00101100111", -- SREG1 
-				 "00101100111", -- SREG2 (actually, SREG1 is identical to SREG2)
-				 "10111101100", -- SMEM2 -- TODO verify if RF2 = 0
-				 "01100110101", -- LMEM1
-				 "10111110101");-- LMEM2
+	type MemoryType is array(0 to NOpcodes-1) of std_logic_vector(NCtrlSignals-1 downto 0);
+  	constant LUT: MemoryType := -- the rows at "ZZZZZ...Z" have not been defined yet
+				("11101110101101000111",  -- 0x00: R-TYPE
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x01
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x02
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x03
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x04
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x05
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x06
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x07
+				 "11011101111101000111",  -- 0x08: ADDI R1, R2, IMM
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x09
+				 "11011101111101000111",  -- 0x0a: SUBI R1, R2, IMM
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x0b
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x0c
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x0d
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x0e
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x0f
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x10
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x11
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x12
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x13
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x14
+				 "00000000000000000000",  -- 0x15: NOP
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x16
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x17
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x18
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x19
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x1a 
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x1b
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x1c
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x1d
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x1e
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x1f
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x20
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x21
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x22
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x23
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x24
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x25
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x26
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x27
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x28
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x29
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x2a
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x2b
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x2c
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x2d
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x2e
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x2f
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x30
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x31
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x32
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x33
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x34
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x35
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x36
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x37
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x38
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x39
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x3a
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x3b
+				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x3c
+				 "ZZZZZZZZZZZZZZZZZZZZ"); -- 0x3d
 	signal	 CW:			 				std_logic_vector(CW_SIZE-1 downto 0);											 -- Full Control Word (not a register, used for the sake of simplicity)
-	signal	 LUTWord:						std_logic_vector(CW_SIZE-ALU_OPC_SIZE-1 downto 0);								 -- Output of the LUT (always available)
-	signal	 CurrCUExeReg, NextCUExeReg: 	std_logic_vector(CW_SIZE-NFirstStageSignals-1 downto 0);						 -- Used to propagate signals to Execution and Mem (+ WriteBack) stages
-	signal	 CurrCUMemWBReg, NextCUMemWBReg:std_logic_vector(CW_SIZE-NFirstStageSignals-NSecondStageSignals-1 downto 0); 	 -- Used to propagate signals to Mem (+ WriteBack) Stage
-	signal	 ALU_Opcode:					std_logic_vector(ALU_OPC_SIZE-1 downto 0);										 -- Output of the combinational logic that computes the ALU Opcode
-	signal   RF_en_DEC, RF_en_WB: std_logic;
+	signal	 LUTWord:						std_logic_vector(NCtrlSignals-1 downto 0);								 		 -- Output of the LUT (always available)
+	signal	 CurrExeWord, NextExeWord: 		std_logic_vector(CW_SIZE-NDecodeStageSignals-1 downto 0);						 -- Used to propagate signals to Execution Stage
+	signal	 CurrMemWord, NextMemWord:		std_logic_vector(CW_SIZE-NDecodeStageSignals-NExeStageSignals-1 downto 0); 	 	 -- Used to propagate signals to Mem Stage
+	signal	 CurrWBWord, NextWBWord:		std_logic_vector(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-1 downto 0); -- Used to propagate signals to WB Stage
+	signal	 ALUOpc:						std_logic_vector(ALUOPCSIZE-1 downto 0);										     -- Output of the combinational logic that computes the ALU Opcode
+	signal   RF_en_DEC, RF_en_WB: 			std_logic;																		 -- RF enable, driven at Decode and WB Stage
 begin
 
 	IF_en <= '1'; -- TODO check whether there are cases where the PC must not be updated
 
-	LUTWord <= LUT(to_integer(unsigned(OPCODE)));										-- Instr.Opcode corresponds to the Read Address of the LUT (it is guaranteed that Opcode <= NOpcodes in binary) 
-	CW			 	<= LUTWord(CW_SIZE-ALU_OPC_SIZE-1 downto 5) & ALU_Opcode & LUTWord(4 downto 0);							-- Building the complete CW
-	RF1 		 	<= CW(12);
-	RF2 			<= CW(11);
-	EN1 		 	<= CW(10);
-	NextCUExeReg	<= CW(CW_SIZE-NFirstStageSignals-1 downto 0); -- only a fraction of the CW signals are propagated (the others are actually used at Decode Stage)
-	S1  			<= CurrCUExeReg(9);
-	S2  			<= CurrCUExeReg(8);
-	EN2			 	<= CurrCUExeReg(7);
-	ALU1 			<= CurrCUExeReg(6);
- 	ALU2			<= CurrCUExeReg(5);
-	NextCUMemWBReg 	<= CurrCUExeReg(4 downto 0); -- only a fraction of the CUExeReg signals are propagated (the others are actually used at Ex Stage)
-	RM 				<= CurrCUMemWBReg(4);
-	WM				<= CurrCUMemWBReg(3);
-	EN3				<= CurrCUMemWBReg(2);
-	S3				<= CurrCUMemWBReg(1);
-	WF1				<= CurrCUMemWBReg(0);
+	-- TODO FROM HERE: update Memory Content, build CW signal DP and route everything, then configure CW for add/sub/addi/subi/addu/subu/nop
 
-	CURegSynchProc: process(clk)
+	LUTWord <= LUT(to_integer(unsigned(OPCODE)));										-- Instr.Opcode corresponds to the Read Address of the LUT (it is guaranteed that Opcode <= NOpcodes in binary) 
+	CW			 	<= LUTWord & ALUOpc;							-- Building the complete CW
+	RF_en_DEC		<= CW(CW_SIZE-1);								-- Signals to be sent at Decode Stage
+	RF_rd1 			<= CW(CW_SIZE-2);
+	RF_rd2 			<= CW(CW_SIZE-3);
+	waddr_sel 	 	<= CW(CW_SIZE-4);
+	reg_delay1_en 	<= CW(CW_SIZE-5);
+	A_en			<= CW(CW_SIZE-6);
+	B_en			<= CW(CW_SIZE-7);
+	Imm_en			<= CW(CW_SIZE-8);
+	NextExeWord		<= CW(CW_SIZE-NDecodeStageSignals-1 downto 0); 	-- CW signals to be propagated at Exe Stage and beyond
+	ALUinA_sel		<= CurrExeWord(CW_SIZE-NDecodeStageSignals-1);	-- Signals to be sent at Exe Stage
+	ALUinB_sel		<= CurrExeWord(CW_SIZE-NDecodeStageSignals-2);
+	reg_delay2_en	<= CurrExeWord(CW_SIZE-NDecodeStageSignals-3);
+	reg_ALU_en		<= CurrExeWord(CW_SIZE-NDecodeStageSignals-4);
+	ALUop_sel		<= CurrExeWord(ALUOPCSIZE-1 downto 0);
+	NextMemWord		<= CurrExeWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals+ALUOPCSIZE-1 downto ALUOPCSIZE); -- CW signals to be propagated at Mem Stage and beyond
+	branch_sel	 	<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-1);
+	reg_delay3_en 	<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-2);
+	DMem_en			<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-3);
+	DMem_wr			<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-4);
+	reg_LMD_en	 	<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-5);
+	NextWBWord		<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-1 downto 0);	 -- CW signals to be propagated at WB Stage and beyond
+	RF_en_WB		<= CurrWBWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-1);
+	WB_sel			<= CurrWBWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-2);
+	RF_wr			<= CurrWBWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-3);
+
+	SynchProc: process(clk)
 	begin
 		if (rising_edge(clk)) then
 			if (rst = '0') then
-				CurrCUExeReg <= (others => '0');
-				CurrCUMemWBReg <= (others => '0');
+				CurrExeWord <= (others => '0');
+				CurrMemWord <= (others => '0');
+				CurrWBWord	<= (others => '0');
 			else
-				CurrCUExeReg <= NextCUExeReg;
-				CurrCUMemWBReg <= NextCUMemWBReg;
+				CurrExeWord <= NextExeWord;
+				CurrMemWord <= NextMemWord;
+				CurrWBWord	<= NextWBWord;
 			end if;
 		end if;
 	end process;
@@ -109,46 +169,17 @@ begin
 	ALUOpcComputation: process(OPCODE, FUNC)
 	begin
 		case to_integer(unsigned(OPCODE)) is
-			when 0 => -- NOP
-				ALU_Opcode <= "00";
-			when 1 => -- R-Type
-				case to_integer(unsigned(FUNC)) is
-					when 0 => ALU_Opcode <= "00"; -- ADD RS1,RS2,RD
-					when 1 => ALU_Opcode <= "01"; -- SUB RS1,RS2,RD
-					when 2 => ALU_Opcode <= "10"; -- AND RS1,RS2,RD
-					when 3 => ALU_Opcode <= "11"; -- OR  RS1,RS2,RD
-					when others =>	  ALU_Opcode <= "00"; -- explicitly defined for safety and predictability
+			when 0 => -- R-TYPE
+				case to_integer(unsigned(FUNC)) is 
+					when 32 => ALUOpc <= "0"; -- ADD R1, R2, R3
+					when 33 => ALUOpc <= "0"; -- ADDU R1, R2, R3
+					when 34 => ALUOpc <= "1"; -- SUB R1, R2, R3
+					when 35 => ALUOpc <= "1"; -- SUBU R1, R2, R3
+					when others =>	ALUOpc <= "0"; -- explicitly defined for safety and predictability
 				end case;
-			when 2 => -- ADDI1 RS1,RD,INP1
-				ALU_Opcode <= "00";
-			when 3 => -- SUBI1 RS1,RD,INP1
-				ALU_Opcode <= "01";
-			when 4 => -- ANDI1 RS1,RD,INP1
-				ALU_Opcode <= "10";
-			when 5	 => -- ORI1  RS1,RD,INP1
-				ALU_Opcode <= "11";
-			when 6 => -- ADDI2 RS1,RD,INP2
-				ALU_Opcode <= "00";
-			when 7 => -- SUBI2 RS1,RD,INP2
-				ALU_Opcode <= "01";
-			when 8 => -- ANDI2 RS1,RD,INP2
-				ALU_Opcode <= "10";
-			when 9  => -- ORI2 RS1,RD,INP2
-				ALU_Opcode <= "11";
-			when 10   => -- MOV  RS1,RD (Immediate at 0)
-				ALU_Opcode <= "00";
-			when 11 => -- SREG1 RD,INP1
-				ALU_Opcode <= "10"; -- it is supposed that INP1 is always equal to the content of INP2 and exploit this identity not to modify the Immediate content (INP1 AND INP2 = INP1)
-			when 12 => -- SREG2 RD,INP2
-				ALU_Opcode <= "10"; -- same as for SREG1
-			when 13 => -- SMEM2 RS1,RS2,INP2
-				ALU_Opcode <= "00"; -- it is necessary to add the content of the Reg and the Immediate to provide the Mem.Address
-			when 14 => -- LMEM1 RS1,RD,INP1
-				ALU_Opcode <= "00"; -- same as for SMEM2
-			when 15 => -- LMEM2 RS1,RD,INP2
-				ALU_Opcode <= "00"; -- same as for SMEM2
-			when others => 		-- explicitly defined for safety and predictability
-				ALU_Opcode <= "00";
+			when 8 => ALUOpc <= "0";-- ADDI R1, R2, IMM
+			when 10 => ALUOpc <= "1";-- SUBI R1, R2, IMM
+			when others =>	ALUOpc <= "0";	-- explicitly defined for safety and predictability
 		end case;
 	end process;
 
