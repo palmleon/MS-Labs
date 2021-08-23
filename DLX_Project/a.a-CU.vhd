@@ -122,8 +122,6 @@ begin
 
 	IF_en <= '1'; -- TODO check whether there are cases where the PC must not be updated
 
-	-- TODO FROM HERE: update Memory Content, build CW signal DP and route everything, then configure CW for add/sub/addi/subi/addu/subu/nop
-
 	LUTWord <= LUT(to_integer(unsigned(OPCODE)));										-- Instr.Opcode corresponds to the Read Address of the LUT (it is guaranteed that Opcode <= NOpcodes in binary) 
 	CW			 	<= LUTWord & ALUOpc;							-- Building the complete CW
 	RF_en_DEC		<= CW(CW_SIZE-1);								-- Signals to be sent at Decode Stage

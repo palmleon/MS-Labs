@@ -1,7 +1,7 @@
 package myGlobals is
 
 	constant DATASIZE: integer := 32;
-	constant ALUOPCSIZE: integer := 1; -- TODO to be defined
+	constant ALUOPCSIZE: integer := 1; -- TODO to be updated
 	constant OPCSIZE: integer := 6;
 	constant FUNCSIZE: integer := 11;
 
