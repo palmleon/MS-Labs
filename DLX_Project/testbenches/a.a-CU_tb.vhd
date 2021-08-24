@@ -44,7 +44,7 @@ architecture test of cu_tb is
 	end component CU;
 	
 	constant ClkPeriod: time := 20 ns;
-	constant NTest: integer := -- TODO to be defined
+	constant NTest: integer := 6;
 	constant NCtrlSignals: integer := 20;
 	constant CW_SIZE: integer := NCtrlSignals + ALUOPCSIZE;
 	constant NOpcodes: integer := 62;
@@ -118,46 +118,53 @@ architecture test of cu_tb is
 				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x3c
 				 "ZZZZZZZZZZZZZZZZZZZZ"); -- 0x3d
 
-
 	type	 ALUOpcIType is array(0 to NOpcodes-1) of std_logic_vector(ALUOPCSIZE-1 downto 0);	
 	type	 ALUOpcRType is array(0 to NRTypeInstr-1) of std_logic_vector(ALUOPCSIZE-1 downto 0);					
 	constant ALUOpcR: ALUOpcRType := 	-- pseudo-memory containing all the ALUOpcodes related to R-Type instr. (used as reference)
 			("Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
 			 "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
 			 "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
-			 "Z", "0", "0", "1", "1", "Z", "Z", "Z", "Z", "Z",
+			 "Z", "Z", "0", "0", "1", "1", "Z", "Z", "Z", "Z",
 			 "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
 			 "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
 			 "Z", "Z");	
 	constant ALUOpcI: ALUOpcIType :=  -- pseudo-memory containing all the ALUOpcodes  related to I-Type instr. (the entry related to R-Type instruction is meaningless)
-			("Z", "Z", "Z", "Z", "Z", "Z", "Z", "0", "Z", "1",
-			 "Z", "Z", "Z", "Z", "0", "Z", "Z", "Z", "Z", "Z",
-			 "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
+			("Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "0", "Z",
+			 "1", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
+			 "Z", "0", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
 			 "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
 			 "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
 			 "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z", "Z",
 			 "Z", "Z");	
-	
+	type   inputOpcType is array(0 to NTest) of std_logic_vector(OPCSIZE - 1 downto 0);
+	type   inputFuncType is array (0 to NTest) of std_logic_vector(FUNCSIZE - 1 downto 0);
+	constant input_opcodes: inputOpcType := 
+			("010101", "000000", "000000", "000000", "000000", "001000", "001010");
+	constant input_funcs: inputFuncType :=
+			("00000000000", "00000100000", "00000100001", "00000100010", "00000100011", "00000000000", "00000000000");
     signal clk_s: std_logic;
-    signal rst_s: std_logic := '1';
-    signal opcode_i: 		std_logic_vector(OPCSIZE - 1 downto 0) := (others => '0');							-- first fetched instruction is a NOP
-	signal opcode_iminus1: 	std_logic_vector(OPCSIZE - 1 downto 0) := (others => '0');							-- instruction fetched 1 clk cycle  before
-	signal opcode_iminus2: 	std_logic_vector(OPCSIZE - 1 downto 0) := (others => '0');							-- instruction fetched 2 clk cycles before
-	signal opcode_iminus3: 	std_logic_vector(OPCSIZE - 1 downto 0) := (others => '0');							-- instruction fetched 3 clk cycles before
+    signal rst_s: std_logic;
+	signal input_opc:		std_logic_vector(OPCSIZE - 1 downto 0);
+    signal opcode_i: 		std_logic_vector(OPCSIZE - 1 downto 0) := "010101";											-- first fetched instruction is a NOP
+	signal opcode_iminus1: 	std_logic_vector(OPCSIZE - 1 downto 0) := "010101";								-- instruction fetched 1 clk cycle  before
+	signal opcode_iminus2: 	std_logic_vector(OPCSIZE - 1 downto 0) := "010101";								-- instruction fetched 2 clk cycles before
+	signal opcode_iminus3: 	std_logic_vector(OPCSIZE - 1 downto 0) := "010101";								-- instruction fetched 3 clk cycles before
+	signal input_func:		std_logic_vector(FUNCSIZE - 1 downto 0);	
 	signal func_i: 			std_logic_vector(FUNCSIZE - 1 downto 0) := (others => '0');							-- func at the current clk cycle
 	signal func_iminus1:	std_logic_vector(FUNCSIZE - 1 downto 0) := (others => '0');							-- func at the previous clk cycle
 	signal ALU_opcode, expected_ALU_opcode:				std_logic_vector(ALUOPCSIZE-1 downto 0);				-- expected ALU opcode at Exe Stage
 	signal decode_signals, expected_decode_signals: 	std_logic_vector(NDecodeStageSignals-2 downto 0);		-- actual and expected signals at Decode Stage (RF_en_Dec not observable)
 	signal exe_signals, expected_exe_signals:			std_logic_vector(NExeStageSignals-ALUOPCSIZE-1 downto 0);	-- actual and expected signals at Exe Stage
 	signal mem_signals, expected_mem_signals:			std_logic_vector(NMemStageSignals-1 downto 0);				-- actual and expected signals at Mem Stage
-	signal wb_signals, expcted_wb_signals: 				std_logic_vector(NWBStageSignals-2 downto 0);				-- actual and expected signals at WB STage (RF_en_WB not observable)
-	signal output_mem_i, output_mem_iminus1:			std_logic_vector(CW_SIZE-ALUOPCSIZE-1 downto 0);			-- LUT content related to instruction decoded 0 and 1 clk cycle before
-	signal output_mem_iminus2, output_mem_iminus3:		std_logic_vector(CW_SIZE-ALUOPCSIZE-1 downto 0);			-- LUT content related to instruction decoded 2 and 3 clk cycle before
-	signal RF_en_s, IF_en_s, RF_rd1_s, RF_rd2_s:		std_logic;		-- output signals of the CU
+	signal wb_signals, expected_wb_signals: 			std_logic_vector(NWBStageSignals-2 downto 0);				-- actual and expected signals at WB STage (RF_en_WB not observable)
+	signal output_mem_i, output_mem_iminus1:			std_logic_vector(CW_SIZE-ALUOPCSIZE-1 downto 0); 		-- LUT content related to instruction decoded 0 and 1 clk cycle before
+	signal output_mem_iminus2, output_mem_iminus3:		std_logic_vector(CW_SIZE-ALUOPCSIZE-1 downto 0);		-- LUT content related to instruction decoded 2 and 3 clk cycle before
+	signal RF_en_s, expected_RF_en:						std_logic;	
+	signal IF_en_s, RF_rd1_s, RF_rd2_s:		std_logic;	-- signals to capture output from the CU
 	signal waddr_sel_s, reg_delay1_en_s,  A_en_s:		std_logic;
 	signal B_en_s, Imm_en_s, ALUinA_sel_s, ALUinB_sel_s:std_logic;
-	signal ALU_opcode, reg_delay2_en_s, reg_ALU_en_s:	std_logic;
-	signal ranch_sel_s, reg_delay3_en_s, DMem_en_s:		std_logic;
+	signal reg_delay2_en_s, reg_ALU_en_s:	std_logic;
+	signal branch_sel_s, reg_delay3_en_s, DMem_en_s:	std_logic;
 	signal DMem_wr_s, reg_LMD_en_s, WB_sel_s, RF_wr_s:	std_logic;
 
 begin
@@ -195,22 +202,26 @@ begin
 
 		ClkProc: process
 		begin
-			Clock <= '0';
+			clk_s <= '0';
 			wait for ClkPeriod/2;
-			Clock <= '1';
+			clk_s <= '1';
 			wait for ClkPeriod/2;
 		end process;	
 
-		PrecOpcProc: process(Clock)	-- process defined to update opcode(i-1) and opcode(i-2), where i is the current time instant
+		PrecOpcProc: process(clk_s)	-- process defined to update opcode(i-1) and opcode(i-2), where i is the current time instant
 		begin
-			if (rising_edge(Clock)) then
-				if (Reset = '0') then
-					opcode_iminus1 	<= (others => '0');
+			if (rising_edge(clk_s)) then
+				if (rst_s = '0') then
+					opcode_i		<= "010101";
+					opcode_iminus1 	<= "010101";
+					func_i			<= (others => '0');
 					func_iminus1 	<= (others => '0');
-					opcode_iminus2 	<= (others => '0');
-					opcode_iminus3 	<= (others => '0');					
+					opcode_iminus2 	<= "010101";
+					opcode_iminus3 	<= "010101";					
 				else
+					opcode_i		<= input_opc;
 					opcode_iminus1 	<= opcode_i;
+					func_i			<= input_func;
 					func_iminus1 	<= func_i;
 					opcode_iminus2 	<= opcode_iminus1;
 					opcode_iminus3 	<= opcode_iminus2;
@@ -218,12 +229,12 @@ begin
 			end if;
 		end process;
 
-		ExpectedALUProc: process(cu_opcode_iminus1, func_iminus1)	-- process defined to compute the expected ALU opcode (which is the opcode related to the instruction decoded one clk cycle before)
+		ExpectedALUProc: process(opcode_iminus1, func_iminus1)	-- process defined to compute the expected ALU opcode (which is the opcode related to the instruction decoded one clk cycle before)
 		begin
-			if (cu_opcode_iminus1 = "000000") then -- R-Type instruction
+			if (opcode_iminus1 = "000000") then -- R-Type instruction
 				expected_ALU_opcode <= ALUOpcR(to_integer(unsigned(func_iminus1)));
 			else
-				expected_ALU_opcode <= ALUOpcI(to_integer(unsigned(cu_opcode_iminus1)));
+				expected_ALU_opcode <= ALUOpcI(to_integer(unsigned(opcode_iminus1)));
 			end if;
 		end process;		
 
@@ -244,24 +255,21 @@ begin
 			end function print;
 			procedure verify_results (TestCnt : in integer) is
 		   		begin
-					wait until falling_edge(Clock);	-- sample on the falling edge
 					assert decode_signals 	= expected_decode_signals report "Test " & integer'image(TestCnt) & "a - expected: " & print(expected_decode_signals) & ", actual: " & print(decode_signals);
-					assert exe_signals 		= expected_exe_signals report "Test " & integer'image(TestCnt) & "b - expected: " & print(expected_exe_signals)& ", actual: " & print(exe_signals);
-					assert mem_signals 		= expected_mem_signals report "Test " & integer'image(TestCnt) & "c - expected: " & print(expected_mem_signals)& ", actual: " & print(mem_signals);
-					assert wb_signals 		= expected_wb_signals report "Test " & integer'image(TestCnt) & "c - expected: " & print(expected_wb_signals)& ", actual: " & print(wb_signals);
-					assert ALU_opcode		= expected_ALU_opcode report "Test " & integer'image(TestCnt) & "d - expected: " & print(expected_ALU_opcode)& ", actual: " & print(ALU_opcode);
-					assert RF_en_s			= expected_RF_en report "Test " & integer'image(TestCnt) & "e - expected: " & print(expected_RF_en)& ", actual: " & print(RF_en_s);				
+					assert exe_signals 		= expected_exe_signals report "Test " & integer'image(TestCnt) & "b - expected: " & print(expected_exe_signals) & ", actual: " & print(exe_signals);
+					assert ALU_opcode		= expected_ALU_opcode report "Test " & integer'image(TestCnt) & "c - expected: " & print(expected_ALU_opcode) & ", actual: " & print(ALU_opcode);
+					assert mem_signals 		= expected_mem_signals report "Test " & integer'image(TestCnt) & "d - expected: " & print(expected_mem_signals) & ", actual: " & print(mem_signals);
+					assert wb_signals 		= expected_wb_signals report "Test " & integer'image(TestCnt) & "e - expected: " & print(expected_wb_signals) & ", actual: " & print(wb_signals);
+					assert RF_en_s			= expected_RF_en report "Test " & integer'image(TestCnt) & "f - expected: " & std_logic'image(expected_RF_en) & ", actual: " & std_logic'image(RF_en_s);				
 			end procedure verify_results;
 		begin
 			-- at each clk cycle, we provide a new Instruction on the rising edge of the Clock (fetching it from the IR), and sample all the signals (i.e. in all the Pipeline Stages) on the falling edge
-			Reset <= '0';
-			wait until rising_edge(clock); 
-			Reset <= '1';
-			for i in 1 to Ntest loop
-				opcode_i <= input_opcode(i);
-		    	func_i 	 <= input_func(i);
+			for i in 0 to Ntest loop
+				if i = 0 then rst_s <= '0'; else rst_s <= '1'; end if;
+				input_opc 	<= input_opcodes(i);
+		    	input_func	<= input_funcs(i);
+				wait for ClkPeriod;
 				verify_results(i);
-				wait until rising_edge(Clock);
 			end loop;
 		    wait;
         end process;
