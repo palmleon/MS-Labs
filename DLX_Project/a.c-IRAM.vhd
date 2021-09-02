@@ -1,8 +1,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
+use ieee.numeric_std.all;
 use std.textio.all;
 use ieee.std_logic_textio.all;
+use work.myGlobals.all;
 
 
 -- Instruction memory for DLX
@@ -10,8 +11,8 @@ use ieee.std_logic_textio.all;
 -- file name is "test.asm.mem"
 entity IRAM is
   generic (
-    RAM_DEPTH : integer := 48;
-    I_SIZE : integer := 32);
+    RAM_DEPTH : integer := IRAMDEPTH;
+    I_SIZE : integer := DATASIZE);
   port (
     Rst  : in  std_logic;
     Addr : in  std_logic_vector(I_SIZE - 1 downto 0);
@@ -20,15 +21,15 @@ entity IRAM is
 
 end IRAM;
 
-architecture IRam_Bhe of IRAM is
+architecture IRam_Beh of IRAM is
 
-  type RAMtype is array (0 to RAM_DEPTH - 1) of integer;-- std_logic_vector(I_SIZE - 1 downto 0);
+  type RAMtype is array (0 to RAM_DEPTH - 1) of std_logic_vector(I_SIZE - 1 downto 0);
 
   signal IRAM_mem : RAMtype;
 
-begin  -- IRam_Bhe
+begin  -- IRam_Beh
 
-  Dout <= conv_std_logic_vector(IRAM_mem(conv_integer(unsigned(Addr))),I_SIZE);
+  Dout <= std_logic_vector(IRAM_mem(to_integer(unsigned(Addr))));
 
   -- purpose: This process is in charge of filling the Instruction RAM with the firmware
   -- type   : combinational
@@ -45,10 +46,10 @@ begin  -- IRam_Bhe
       while (not endfile(mem_fp)) loop
         readline(mem_fp,file_line);
         hread(file_line,tmp_data_u);
-        IRAM_mem(index) <= conv_integer(unsigned(tmp_data_u));       
+        IRAM_mem(index) <= tmp_data_u;       
         index := index + 1;
       end loop;
     end if;
   end process FILL_MEM_P;
 
-end IRam_Bhe;
+end IRam_Beh;

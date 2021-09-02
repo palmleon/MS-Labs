@@ -35,7 +35,7 @@ entity CU is
        OPCODE : in  std_logic_vector(OPCSIZE - 1 downto 0);
        FUNC   : in  std_logic_vector(FUNCSIZE - 1 downto 0);              
        Clk 	  : in std_logic;
-       Rst    : in std_logic);               -- Active Low
+       Rst    : in std_logic);               -- Active High
 end CU;
 
 architecture Beh of CU is
@@ -152,7 +152,7 @@ begin
 	SynchProc: process(clk)
 	begin
 		if (rising_edge(clk)) then
-			if (rst = '0') then
+			if (rst = '1') then
 				CurrExeWord <= (others => '0');
 				CurrMemWord <= (others => '0');
 				CurrWBWord	<= (others => '0');

@@ -37,6 +37,7 @@ architecture A of register_file is
 
 
 begin
+
   Write_Proc : process (clk) is
   begin
      if rising_edge(clk) then
@@ -58,16 +59,16 @@ begin
 		if rd1 = '1' then
   			out1 <= registers(to_integer(unsigned(add_rd1)));
 		else
-			out1 <= (others => 'Z');
+			out1 <= (others => '0');
 		end if;
    		if rd2 = '1' then
    			out2 <= registers(to_integer(unsigned(add_rd2)));
 		else
-			out2 <= (others => 'Z');
+			out2 <= (others => '0');
 		end if;
 	else
-		out1 <= (others => 'Z');
-        out2 <= (others => 'Z');
+		out1 <= (others => '0');
+        out2 <= (others => '0');
 	end if;
   end process Read_Proc;
 

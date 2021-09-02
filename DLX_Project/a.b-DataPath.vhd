@@ -6,12 +6,16 @@ use work.myGlobals.all;
 entity DP is
 	port 
 		(rst, clk: in std_logic;
-		 reg_ALU_en, reg_LMD_en: in std_logic;
+		 PC_out: out std_logic_vector (DATASIZE-1 downto 0);
+		 IMem_out : in std_logic_vector (DATASIZE-1 downto 0);
+		 Opcode: out std_logic_vector (OPCSIZE-1 downto 0);
+		 Func: out std_logic_vector (FUNCSIZE-1 downto 0);
          RF_en, RF_rd1, RF_rd2, RF_wr : in std_logic;
 		 reg_delay1_en, reg_delay2_en, reg_delay3_en: in std_logic;
          IF_en, Waddr_sel, A_en, B_en, Imm_en : in std_logic;
 		 ALUinA_sel, ALUinB_sel: in std_logic;
-		 ALUop_sel: in std_logic_vector (OPCSIZE-1 downto 0);
+		 ALUop_sel: in std_logic_vector (ALUOPCSIZE-1 downto 0);
+		 reg_ALU_en, reg_LMD_en: in std_logic;
 		 Branch_sel: in std_logic;
 		 WB_sel: in std_logic;
 		 D_Mem_out: in std_logic_vector (DATASIZE-1 downto 0);
@@ -34,7 +38,7 @@ architecture structural of DP is
 				(N: integer := DATASIZE);
 			port 
 				(inA, inB: in std_logic_vector (N-1 downto 0);
-				 op_sel: in std_logic_vector (OPCSIZE-1 downto 0);
+				 op_sel: in std_logic_vector (ALUOPCSIZE-1 downto 0);
 				 output: out std_logic_vector (N-1 downto 0));
 		end component ALU;
 
@@ -47,6 +51,15 @@ architecture structural of DP is
 				 Q: out std_logic_vector (N-1 downto 0));
 		end component D_Reg;
 
+		component I_Reg is					-- Specific component for the IR
+			generic
+				( N: integer := DATASIZE );
+			port
+				( clk, rst, en: in std_logic;
+				  D: in std_logic_vector (N-1 downto 0);
+				  Q: out std_logic_vector (N-1 downto 0));
+		end component I_Reg;
+
         component NPC_adder is
             generic
             (
@@ -57,20 +70,6 @@ architecture structural of DP is
             (
                 PC : in std_logic_vector(N-1 downto 0); --input
                 NPC : out std_logic_vector(N-1 downto 0) --output
-            );
-        end component;
-
-        component IRAM is
-            generic 
-            (
-              RAM_DEPTH : integer := 48;
-              I_SIZE : integer := 32
-            );
-            port 
-            (
-              Rst  : in  std_logic;
-              Addr : in  std_logic_vector(I_SIZE - 1 downto 0);
-              Dout : out std_logic_vector(I_SIZE - 1 downto 0)
             );
         end component;
 
@@ -155,15 +154,18 @@ architecture structural of DP is
         --- INSTRUCTION FETCH ---
         
         --PC, NPC, IR
-        PC :  D_Reg port map(clk, rst, IF_en, reg_PC_in, reg_PC_out);
+        PC :  D_Reg port map(clk, rst, IF_en, reg_PC_in, reg_PC_out);    
+        PC_out <= reg_PC_out;
         NPC : D_Reg port map(clk, rst, IF_en, reg_NPC_in, reg_NPC_out);
-        IR :  D_Reg port map(clk, rst, IF_en, reg_IR_in, reg_IR_out);
+		reg_IR_in <= IMem_out;
+        IR :  I_Reg port map(clk, rst, IF_en, reg_IR_in, reg_IR_out);
+
+		-- Opcode and Func generation
+		Opcode <= reg_IR_out(reg_IR_out'length-1 downto reg_IR_out'length-OPCSIZE);
+		Func <= reg_IR_out(FUNCSIZE-1 downto 0);
 
         --NPC adder
         NPC_add : NPC_adder port map(reg_PC_out, reg_NPC_in);
-    
-        --Instruction memory
-        IMEM : IRAM port map(rst, reg_PC_out, reg_IR_in);
 
         --- INSTRUCTION DECODE ---
 
