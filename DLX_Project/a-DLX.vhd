@@ -18,15 +18,16 @@ end DLX;
 -- instruction register (complete)
 -- program counter (complete)
 -- instruction ram memory (complete)
--- control unit (UNCOMPLETE)
---
+-- control unit (complete)
+-- datapath (INCOMPLETE)
+
 architecture DLX_rtl of DLX is
 
  --------------------------------------------------------------------
  -- Components Declaration
  --------------------------------------------------------------------
   
-  --Instruction Ram
+  -- Instruction Ram
   component IRAM is
 	  generic (
 		RAM_DEPTH : integer := IRAMDEPTH;

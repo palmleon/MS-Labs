@@ -27,12 +27,23 @@ begin
 
 	DUT: DLX port map (clk=>clk_s, rst=>rst_s);
 
+	TestProc: process
+	begin
+		rst_s <= '1';
+		wait for ClkPeriod;
+		rst_s <= '0';
+		wait;
+	end process;
+
 	ClkProc: process
 	begin
-		clk_s <= '0';
-		wait for ClkPeriod/2;
-		clk_s <= '1';
-		wait for ClkPeriod/2;
+		-- loop that automatically stops the processor when all the code has been executed
+		for i in 1 to NTESTINSTR + 6 loop
+			clk_s <= '0';
+			wait for ClkPeriod/2;
+			clk_s <= '1';
+			wait for ClkPeriod/2;
+		end loop;
 	end process;
 
 end test;

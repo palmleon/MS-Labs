@@ -39,15 +39,15 @@ entity CU is
 end CU;
 
 architecture Beh of CU is
-	constant NCtrlSignals: integer := 20;
-	constant CW_SIZE: integer := NCtrlSignals + ALUOPCSIZE;
+	constant NCtrl: integer := 20;
+	constant CW_SIZE: integer := NCtrl + ALUOPCSIZE;
 	constant NOpcodes: integer := 62;
-	constant NDecodeStageSignals: integer := 8;
-	constant NExeStageSignals: integer := 4 + ALUOPCSIZE;	
-	constant NMemStageSignals: integer := 5;
-	constant NWBStageSignals: integer  := 3;
+	constant NDecodeStage: integer := 8;
+	constant NExeStage: integer := 4 + ALUOPCSIZE;	
+	constant NMemStage: integer := 5;
+	constant NWBStage: integer  := 3;
 
-	type MemoryType is array(0 to NOpcodes-1) of std_logic_vector(NCtrlSignals-1 downto 0);
+	type MemoryType is array(0 to NOpcodes-1) of std_logic_vector(NCtrl-1 downto 0);
   	constant LUT: MemoryType := -- the rows at "ZZZZZ...Z" have not been defined yet
 				("11101110101101000111",  -- 0x00: R-TYPE
 				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x01
@@ -112,10 +112,10 @@ architecture Beh of CU is
 				 "ZZZZZZZZZZZZZZZZZZZZ",  -- 0x3c
 				 "ZZZZZZZZZZZZZZZZZZZZ"); -- 0x3d
 	signal	 CW:			 				std_logic_vector(CW_SIZE-1 downto 0);											 -- Full Control Word (not a register, used for the sake of simplicity)
-	signal	 LUTWord:						std_logic_vector(NCtrlSignals-1 downto 0);								 		 -- Output of the LUT (always available)
-	signal	 CurrExeWord, NextExeWord: 		std_logic_vector(CW_SIZE-NDecodeStageSignals-1 downto 0);						 -- Used to propagate signals to Execution Stage
-	signal	 CurrMemWord, NextMemWord:		std_logic_vector(CW_SIZE-NDecodeStageSignals-NExeStageSignals-1 downto 0); 	 	 -- Used to propagate signals to Mem Stage
-	signal	 CurrWBWord, NextWBWord:		std_logic_vector(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-1 downto 0); -- Used to propagate signals to WB Stage
+	signal	 LUTWord:						std_logic_vector(NCtrl-1 downto 0);								 		 -- Output of the LUT (always available)
+	signal	 CurrExeWord, NextExeWord: 		std_logic_vector(CW_SIZE-NDecodeStage-1 downto 0);						 -- Used to propagate signals to Execution Stage
+	signal	 CurrMemWord, NextMemWord:		std_logic_vector(CW_SIZE-NDecodeStage-NExeStage-1 downto 0); 	 	 -- Used to propagate signals to Mem Stage
+	signal	 CurrWBWord, NextWBWord:		std_logic_vector(CW_SIZE-NDecodeStage-NExeStage-NMemStage-1 downto 0); -- Used to propagate signals to WB Stage
 	signal	 ALUOpc:						std_logic_vector(ALUOPCSIZE-1 downto 0);										     -- Output of the combinational logic that computes the ALU Opcode
 	signal   RF_en_DEC, RF_en_WB: 			std_logic;																		 -- RF enable, driven at Decode and WB Stage
 begin
@@ -132,22 +132,22 @@ begin
 	A_en			<= CW(CW_SIZE-6);
 	B_en			<= CW(CW_SIZE-7);
 	Imm_en			<= CW(CW_SIZE-8);
-	NextExeWord		<= CW(CW_SIZE-NDecodeStageSignals-1 downto 0); 	-- CW signals to be propagated at Exe Stage and beyond
-	ALUinA_sel		<= CurrExeWord(CW_SIZE-NDecodeStageSignals-1);	-- Signals to be sent at Exe Stage
-	ALUinB_sel		<= CurrExeWord(CW_SIZE-NDecodeStageSignals-2);
-	reg_delay2_en	<= CurrExeWord(CW_SIZE-NDecodeStageSignals-3);
-	reg_ALU_en		<= CurrExeWord(CW_SIZE-NDecodeStageSignals-4);
+	NextExeWord		<= CW(CW_SIZE-NDecodeStage-1 downto 0); 	-- CW signals to be propagated at Exe Stage and beyond
+	ALUinA_sel		<= CurrExeWord(CW_SIZE-NDecodeStage-1);	-- Signals to be sent at Exe Stage
+	ALUinB_sel		<= CurrExeWord(CW_SIZE-NDecodeStage-2);
+	reg_delay2_en	<= CurrExeWord(CW_SIZE-NDecodeStage-3);
+	reg_ALU_en		<= CurrExeWord(CW_SIZE-NDecodeStage-4);
 	ALUop_sel		<= CurrExeWord(ALUOPCSIZE-1 downto 0);
-	NextMemWord		<= CurrExeWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals+ALUOPCSIZE-1 downto ALUOPCSIZE); -- CW signals to be propagated at Mem Stage and beyond
-	branch_sel	 	<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-1);
-	reg_delay3_en 	<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-2);
-	DMem_en			<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-3);
-	DMem_wr			<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-4);
-	reg_LMD_en	 	<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-5);
-	NextWBWord		<= CurrMemWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-1 downto 0);	 -- CW signals to be propagated at WB Stage and beyond
-	RF_en_WB		<= CurrWBWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-1);
-	WB_sel			<= CurrWBWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-2);
-	RF_wr			<= CurrWBWord(CW_SIZE-NDecodeStageSignals-NExeStageSignals-NMemStageSignals-3);
+	NextMemWord		<= CurrExeWord(CW_SIZE-NDecodeStage-NExeStage+ALUOPCSIZE-1 downto ALUOPCSIZE); -- CW signals to be propagated at Mem Stage and beyond
+	branch_sel	 	<= CurrMemWord(CW_SIZE-NDecodeStage-NExeStage-1);
+	reg_delay3_en 	<= CurrMemWord(CW_SIZE-NDecodeStage-NExeStage-2);
+	DMem_en			<= CurrMemWord(CW_SIZE-NDecodeStage-NExeStage-3);
+	DMem_wr			<= CurrMemWord(CW_SIZE-NDecodeStage-NExeStage-4);
+	reg_LMD_en	 	<= CurrMemWord(CW_SIZE-NDecodeStage-NExeStage-5);
+	NextWBWord		<= CurrMemWord(CW_SIZE-NDecodeStage-NExeStage-NMemStage-1 downto 0);	 -- CW signals to be propagated at WB Stage and beyond
+	RF_en_WB		<= CurrWBWord(CW_SIZE-NDecodeStage-NExeStage-NMemStage-1);
+	WB_sel			<= CurrWBWord(CW_SIZE-NDecodeStage-NExeStage-NMemStage-2);
+	RF_wr			<= CurrWBWord(CW_SIZE-NDecodeStage-NExeStage-NMemStage-3);
 
 	SynchProc: process(clk)
 	begin

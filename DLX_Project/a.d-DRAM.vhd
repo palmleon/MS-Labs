@@ -1,6 +1,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use std.textio.all;
+use ieee.std_logic_textio.all;
 use work.myGlobals.all;
 
 -- Entity for the Data Memory to access at Memory Stage
@@ -20,6 +22,8 @@ end DRAM;
 architecture DRam_Beh of DRAM is
 
   type RAMtype is array (0 to RAMDEPTH - 1) of std_logic_vector(DATASIZE - 1 downto 0);
+
+  constant FILE_MEMDUMP: string := "memdump.mem"; -- !! to change the file where to read the memory content
 
   signal DRAM_mem : RAMtype;
 
@@ -52,5 +56,26 @@ begin  -- DRam_Beh
 		dout <= (others => 'Z');
 	end if;
   end process Read_Proc;
+
+  -- Testing process that prints the content of the whole memory at each clk cycle
+  Dump_Proc: process (clk)
+	file mem_fp: text;
+	variable file_line: line;
+  begin
+  	if TEST_ACTIVE then
+		if rising_edge(clk) then
+			file_open(mem_fp, FILE_MEMDUMP, WRITE_MODE);
+			for i in 0 to RAMDEPTH-1 loop
+  				-- Format of a line: "Register #<n>: <Mem[n]>"
+				write(file_line, string'("Register #"));
+				write(file_line, i);
+				write(file_line, string'(": "));
+				hwrite(file_line, DRAM_mem(i));
+				writeline(mem_fp, file_line);
+			end loop;
+			file_close(mem_fp);
+		end if;
+	end if;
+  end process Dump_Proc;
 
 end DRam_Beh;
