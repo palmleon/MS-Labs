@@ -38,10 +38,6 @@
 - <img alt="avatar" src="https://github.com/palmleon.png" width="20px" height="20px"> **Leonardo Palmucci** - [palmleon](https://github.com/palmleon) 
 - <img alt="avatar" src="https://github.com/Edward-Manca.png" width="20px" height="20px"> **Edward Manca** - [Edward-Manca](https://github.com/Edward-Manca)
 
-## DLX Project
-
-[ REDACTED ]
-
 ## Labs
 
 ###	Lab1
