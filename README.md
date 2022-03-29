@@ -12,7 +12,6 @@
 
 * [Index](#index)
 * [Team](#team)
-* [DLX](DLX_project)
 * Labs
   - [Lab1](#lab1)
     - [requirements](Labs/gr38_lab01/lab1.pdf)
