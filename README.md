@@ -35,7 +35,8 @@
 ## Team
 
 - <img alt="avatar" src="https://github.com/palmleon.png" width="20px" height="20px"> **Leonardo Palmucci** - [palmleon](https://github.com/palmleon) 
-- <img alt="avatar" src="https://github.com/Edward-Manca.png" width="20px" height="20px"> **Edward Manca** - [Edward-Manca](https://github.com/Edward-Manca)
+- <img alt="avatar" src="https://github.com/343-Guilty4Spark.png" width="20px" height="20px"> **Edward Manca** - [343-Guilty4Spark](https://github.com/343-Guilty4Spark)
+- <img alt="avatar" src="https://github.com/mspronesti.png" width="20px" height="20px"> **Massimiliano Pronesti** - [mspronesti](https://github.com/mspronesti) (Labs 1, 2, 3)
 
 ## Labs
 
